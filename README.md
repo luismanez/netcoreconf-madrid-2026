@@ -1,4 +1,4 @@
-# {{SESSION_TITLE}}
+# WTF Engineering
 
 This repository contains the materials, demos, and resources used during the session **{{SESSION_TITLE}}**.
 
