@@ -1,6 +1,12 @@
 # WTF Engineering
 
-This repository contains the materials, demos, and resources used during the session **{{SESSION_TITLE}}**.
+This repository contains the materials, demos, and resources used during the session **WTF Engineering** delivered during the NetCoreConf Madrid 2026 (23 October 2026).
+
+![session-banner](./assets/session-banner.jpeg)
+
+## 📝 Abstract
+
+¿Cansado de que cada semana aparezca un nuevo «random string» engineering? Seguramente has oído hablar de Prompt Engineering, Context Engineering... Loop Engineering... ¡Oh, otro más! Graph Engineering... y mi favorito: Harness Engineering. Si es el caso, vente a esta sesión. Pondremos orden en todo esto, veremos qué aporta cada concepto, cuándo tiene sentido y profundizaremos en Harness Engineering y en cómo Microsoft Agent Framework nos lo pone fácil a la hora de montar nuestro propio harness.
 
 ## 📚 Repository contents
 
