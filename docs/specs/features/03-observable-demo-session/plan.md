@@ -45,15 +45,15 @@ Do not promise automatic span names or an exact tree. Check correlation, coverag
 
 1. **Session trace:** exporter, resource, source, correlation, and closure/flush over existing activities.
 2. **Presentation console:** streaming and task/fact snapshots, human question, and an unambiguous summary. Checkpoint for a visible flow without regressions.
-3. **Privacy and viewer:** canary payload test, negative trace paths, and a local Aspire smoke test.
+3. **Privacy and viewer:** privacy/source review, negative trace paths, and a manual local Aspire viewer check.
 
 ## Feature acceptance criteria
 
 1. A run generates a correlated trace covering prior operations, approval waiting, deployment, iterations, and closure; the exporter can send it to the local dashboard.
 2. The console is readable and consistent with the store in happy, reject, and stuck, with correct tasks and counters; the seven teaching elements remain visible in code.
-3. Telemetry tests find no sensitive canary content; there is no duplicate client instrumentation, and all F1/F2 tests still pass.
+3. Source review and available manual trace inspection confirm sensitive capture is disabled and client instrumentation is not duplicated; F1/F2 guards and limits remain intact.
 
-## Planned local smoke test
+## Planned manual viewer check
 
 ```bash
 docker run --rm -d --name wft-dashboard \
@@ -62,11 +62,11 @@ docker run --rm -d --name wft-dashboard \
 docker logs wft-dashboard
 ```
 
-With the image available and Foundry configured, run `happy`, accept manually, and locate the TraceId through the authenticated dashboard link. Do not download images/packages during the public walkthrough. If Docker or credentials are missing, record what was verified with a test exporter and which smoke test remains pending.
+With the image available and Foundry configured, run `happy`, accept manually, and locate the TraceId through the authenticated dashboard link. Do not download images/packages during the public walkthrough. If Docker or credentials are missing, record compilation/source review and leave the live viewer check pending.
 
 ## Risks and simplification
 
-- An exporter without a matching source delivers no data; test the name rather than assuming it.
+- An exporter without a matching source delivers no data; check source configuration and inspect the actual trace when the viewer is available.
 - Client OTel plus another wrapper can duplicate spans or content; use the harness pipeline and review the trace.
 - Streaming can mix model calls with agent invocations; iteration labels use the external counter.
 - Keep Spectre.Console presentation helpers small in `DemoApplication.cs`, with composition in `Program.cs`. Extract a file only if it clearly improves readability; do not add another console library or framework.
@@ -76,7 +76,7 @@ With the image available and Foundry configured, run `happy`, accept manually, a
 ```text
 Apply using-agent-skills and implement feature 03-observable-demo-session.
 Read docs/specs/production-change-demo.md, docs/specs/features/README.md, and plan.md/todo.md in docs/specs/features/03-observable-demo-session/; check that features 01 and 02 are implemented and verified.
-Complete the three tasks: connect OTel/OTLP to existing instrumentation, prepare readable console/streaming output, and test privacy and correlation. Preserve guards, external state, and limits.
+Complete the three tasks: connect OTel/OTLP to existing instrumentation, prepare readable console/streaming output, and manually inspect privacy and correlation. Preserve guards, external state, and limits.
 Do not capture prompts, responses, or payloads, duplicate client instrumentation, or add a TUI/AppHost/collector. Use local standalone Aspire if the environment is available.
-Update todo.md with evidence and actual pending smoke tests. Do not implement new scenarios or the conference script; no sub-agents, new layers, provisioning, or automatic commits. Write documentation in English.
+Update todo.md with evidence and actual pending viewer checks. Do not implement new scenarios or the conference script; no sub-agents, new layers, provisioning, or automatic commits. Do not add automated tests, a testing project, scripted model clients, or testing dependencies. Write documentation in English.
 ```

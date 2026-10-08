@@ -1,6 +1,6 @@
 # Spec: Enterprise Production Change Assistant
 
-**Status:** scaffolding implemented; agent features pending.
+**Status:** scaffolding and feature 01 implemented; live Foundry rehearsal pending. Features 02–04 remain planned.
 
 **API review date:** 7 October 2026.
 
@@ -17,7 +17,7 @@ The demo shows how a harness integrates context, tools, human approval, state, l
 Proposed assumptions:
 
 - Each run processes one change, with a fresh session and store. No general chat or persistence between runs.
-- .NET 10, one console project, and a small test project that is not shown live.
+- .NET 10 and one console project. No automated tests, scripted model client, testing project, or testing dependencies, by presenter decision. Verification uses compilation, source review, and brief manual checks.
 - A model already available in Microsoft Foundry, selected and rehearsed before the talk. No resources are provisioned for this demo.
 - Console output, agent instructions, and documentation in English; the conference explanation in Spanish.
 - The happy path is mandatory. Rejection and the iteration limit are prepared as brief alternatives.
@@ -41,13 +41,13 @@ Proposed baseline to freeze during rehearsal:
 | `Microsoft.Extensions.AI.OpenAI` | `10.10.1` | `IChatClient` adapter |
 | `OpenTelemetry.Exporter.OpenTelemetryProtocol` | `1.19.1` | OTLP SDK/export |
 
-The implemented scaffold uses .NET SDK `10.0.202`, `DotNetEnv` `3.2.0`, `Spectre.Console` `0.57.2`, and Microsoft.Extensions.Configuration/EnvironmentVariables/DependencyInjection `10.0.6`. The agent dependencies above will be added and verified in F1; their compatibility is still pending. See [scaffolding decisions and verification](scaffolding.md).
+The implemented scaffold uses .NET SDK `10.0.202`, `DotNetEnv` `3.2.0`, `Spectre.Console` `0.57.2`, and Microsoft.Extensions.Configuration/EnvironmentVariables/DependencyInjection `10.0.6`. The agent dependencies above were restored and compiled in F1; only the exporter remains planned for F3. See [F1 compatibility evidence](features/01-governed-production-change/compatibility.md). See [scaffolding decisions and verification](scaffolding.md).
 
 These versions are published: [Harness 1.23.0](https://www.nuget.org/packages/Microsoft.Agents.AI.Harness/1.23.0), [Projects](https://www.nuget.org/packages/Azure.AI.Projects/3.0.0-beta.3), [Identity](https://www.nuget.org/packages/Azure.Identity/1.21.0), [adapter](https://www.nuget.org/packages/Microsoft.Extensions.AI.OpenAI/10.10.1), and [exporter](https://www.nuget.org/packages/OpenTelemetry.Exporter.OpenTelemetryProtocol/1.19.1). The [.NET 1.23.0 release](https://github.com/microsoft/agent-framework/releases/tag/dotnet-1.23.0) updates Projects and Microsoft.Extensions.AI to this API family.
 
 The gallery also lists `1.24.0` dated 7 October. The proposal is to freeze `1.23.0`, already published and documented, without updating packages on the day of the talk. Looping APIs remain marked experimental: pin versions and explicitly acknowledge `MAAI001`, without suppressing all warnings. [Looping](https://learn.microsoft.com/en-us/agent-framework/agents/looping), [official sample](https://github.com/microsoft/agent-framework/blob/main/dotnet/samples/02-agents/Harness/Harness_Step05_Loop/Program.cs).
 
-**Verification pending implementation:** restore and compile this combination and check approvals + streaming + looping with the chosen model. Documentation and links to `main` do not replace that check. If the pinned package differs, update this spec first; do not invent an equivalent API.
+**Verification status:** F1 restored and compiled the agent/client combination and used provider/approval APIs. Native external-loop compatibility is checked in F2; approval + streaming + looping behavior still requires the chosen live model. Documentation and links to `main` do not replace that check. If the pinned package differs, update this spec first; do not invent an equivalent API.
 
 ## 3. Minimal architecture and responsibilities
 
@@ -87,16 +87,13 @@ src/WftEngineering.Demo/
 ├── Tools/DeploymentTools.cs
 ├── Demo/DemoDeploymentStore.cs
 └── skills/production-change/SKILL.md
-src/WftEngineering.Demo.Tests/
-├── WftEngineering.Demo.Tests.csproj
-└── ProductionChangeTests.cs
 ```
 
-Copy `skills/**` to the output directory and resolve it from `AppContext.BaseDirectory`. Avoid depending on the directory from which `dotnet run` is launched to locate Skills. Use `ServiceCollection` for settings, console, and concrete services, with constructor injection; no custom container, service interfaces, factories, repositories, or shared library. Both code projects and their solution live under `src/`. The test project may add a scripted `IChatClient` to verify the framework without network access.
+Copy `skills/**` to the output directory and resolve it from `AppContext.BaseDirectory`. Avoid depending on the directory from which `dotnet run` is launched to locate Skills. Use `ServiceCollection` for settings, console, and concrete services, with constructor injection; no custom container, service interfaces, factories, repositories, or shared library. The console project and its solution live under `src/`. Do not add testing infrastructure or extra code projects for verification.
 
 ### Configuration and console conventions
 
-Load `.env` from the working directory using DotNetEnv's configuration provider without changing process environment variables, then add environment variables so explicitly supplied process values take precedence. Run from the repository root. Keep `.env` and `.env.*` ignored; `env.template` contains empty values. Require `FOUNDRY_PROJECT_ENDPOINT` and `FOUNDRY_MODEL`; optional OTLP values default to `http://localhost:4317` and `grpc`. Missing or invalid settings stop startup without printing their values. Authentication remains the planned `AzureCliCredential`; do not add API keys.
+Load `.env` from the working directory using DotNetEnv's configuration provider without changing process environment variables, then add environment variables so explicitly supplied process values take precedence. Run from the repository root. Keep `.env` and `.env.*` ignored; `env.template` contains empty values. Require `FOUNDRY_PROJECT_ENDPOINT` and `FOUNDRY_MODEL`; optional OTLP values default to `http://localhost:4317` and `grpc`. Missing or invalid settings stop startup without printing their values. Authentication uses `AzureCliCredential`; do not add API keys.
 
 Use Spectre.Console through an injected `IAnsiConsole`: a banner, panels, tables, and short status messages. Keep rendering in the console project and avoid a TUI framework or custom rendering abstractions. Source code, comments, and new documentation are in English. These conventions supersede the original manual-composition and `Console.WriteLine` decisions.
 
@@ -291,14 +288,12 @@ Allowed data: tool names, duration, iteration, observation counter, statuses, ap
 
 ## 8. Planned commands
 
-These commands are the contract for the full agent implementation. The projects exist, but scenario commands require the later features. For the current scaffold, use the commands in [scaffolding.md](scaffolding.md). Run from the repository root.
+Restore/build and `--scenario happy` are available after F1. The dashboard/exporter and `stuck` commands require later features. Run from the repository root.
 
 ```bash
-# Restore, build, tests without a live model, and formatting
+# Restore, build, and formatting
 dotnet restore src/WftEngineering.Demo/WftEngineering.Demo.csproj --use-lock-file
-dotnet restore src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj --use-lock-file
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
-dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
 dotnet format src/WftEngineering.Demo/WftEngineering.Demo.csproj --verify-no-changes --no-restore
 
 # Development login and local configuration, before the talk
@@ -318,11 +313,11 @@ dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Relea
 dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-build -- --scenario stuck
 ```
 
-Open the dashboard access link from its logs; do not disable authentication. The host receives a typed `RequestedChange` from the scenario and constructs the request in English; do not add a general natural-language parser. The model must query business data even though the host already knows the requested target. For mismatch tests, change the version or change ID in that request and verify it is never silently converted to the canonical target. Pin the exact model name during rehearsal; do not guess it when configuration is missing.
+Open the dashboard access link from its logs; do not disable authentication. The host receives a typed `RequestedChange` from the scenario and constructs the request in English; do not add a general natural-language parser. The model must query business data even though the host already knows the requested target. For manual mismatch checks during later scenario implementation, change the version or change ID in that request and verify it is never silently converted to the canonical target. Pin the exact model name during rehearsal; do not guess it when configuration is missing.
 
 ## 9. Verification and acceptance criteria
 
-Use small xUnit tests for store/tool invariants and integration tests with a scripted `IChatClient`, without consuming the live model. Test controls through the harness as well as calling methods directly. Do not freeze generated text or pursue a coverage percentage; cover these conditions:
+Do not create or run automated tests for this conference demo. Compile, review the authorization and limit guards, and use brief manual runs with the configured live model. The matrix below describes expected behavior across the four features; mark live checks pending when credentials are unavailable. Do not replace the model with a scripted client or claim runtime verification from compilation alone.
 
 | Case | Verifiable outcome |
 |---|---|
@@ -380,7 +375,7 @@ Never: use LLM decisions as authorization, automatically approve deployment, exe
 ## 12. Outstanding items to close the proposal
 
 - Confirm the Foundry project/model available for rehearsal; the spec proposes this provider without requiring provisioning.
-- Validate the pinned versions, provider methods, and invocation counts with approval/streaming through compilation.
+- F1 pinned versions and used provider signatures compile. Verify live approval continuation in F1; verify native external-loop APIs and invocation counts in F2.
 - Confirm the dashboard image and duration during rehearsal; pin the SDK version too.
 
-The feature plans and task lists are in [features/README.md](features/README.md). Scaffolding is complete; business tools, native approval, looping, telemetry export, and rehearsal remain pending.
+The feature plans and task lists are in [features/README.md](features/README.md). Scaffolding, business read/deploy tools, Skill/todos, and native approval hosting are implemented. Live F1 rehearsal, external looping, telemetry export, and conference preparation remain pending.

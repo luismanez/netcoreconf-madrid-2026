@@ -9,14 +9,13 @@ Initial status: pending; requires F1 implemented and verified.
 **Description:** add the fourth tool and the fake's minimal state machine. Separate snapshots, observation count, effective version, and subsequent health.
 
 **Dependencies:** F1 complete.
-**Scope:** M, 4 edited files.
+**Scope:** M, 3 edited files.
 
 **Planned files:**
 
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`
 - `src/WftEngineering.Demo/skills/production-change/SKILL.md`
-- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -27,11 +26,10 @@ Initial status: pending; requires F1 implemented and verified.
 **Verification:**
 
 ```bash
-dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~DeploymentState'
-dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
+dotnet build src/WftEngineering.slnx -c Release --no-restore
 ```
 
-Use names containing `DeploymentState`. Test repeated reads, reentry after approval, and subsequent health with independent fixtures. Do not use a real clock, sleeps, or Random.
+Review snapshot caching, unknown-ID guards, effective-version changes, and subsequent health evidence. Use deterministic fixtures; no real clock, sleeps, or randomness. Observe counters during a configured live happy run; record unavailable live checks as pending.
 
 ## F2-T2 — Drive the flow with LoopAgent and external state
 
@@ -40,14 +38,13 @@ Use names containing `DeploymentState`. Test repeated reads, reentry after appro
 **Description:** enable the native loop around the approval pipeline and follow the path through Completed while preserving todos/session state.
 
 **Dependencies:** F2-T1.
-**Scope:** M, 4 edited files.
+**Scope:** M, 3 edited files.
 
 **Planned files:**
 
 - `src/WftEngineering.Demo/Program.cs`
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
 - `src/WftEngineering.Demo/skills/production-change/SKILL.md`
-- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -58,17 +55,15 @@ Use names containing `DeploymentState`. Test repeated reads, reentry after appro
 **Verification:**
 
 ```bash
-dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Loop'
-dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Approval'
-dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
+dotnet build src/WftEngineering.slnx -c Release --no-restore
 ```
 
-Use names containing `Loop`. The test client must count agent invocations through observed instrumentation/state, as well as model and status calls; do not confuse the counters. Test an invocation with several queries to demonstrate caching and another that omits status to check feedback.
+With Foundry configured, manually observe distinct native invocations and status observations, approval pause/resume, and subsequent health. Review the evaluator and cached snapshots in source. Keep invocation, model-call, and observation counters distinct.
 
 ### Checkpoint after T2
 
-- [ ] Complete happy path verifiable offline through the real harness.
-- [ ] F1 approval tests pass without weakening guards.
+- [ ] Complete happy path implemented through the native harness; live behavior checked when configured.
+- [ ] F1 native approval and store guards remain intact.
 - [ ] The fourth tool, evaluator, counters, and MaxIterations are easy to locate in code without new layers.
 
 ## F2-T3 — Stop autonomy and classify the pending outcome
@@ -78,14 +73,13 @@ Use names containing `Loop`. The test client must count agent invocations throug
 **Description:** complete all branches and budgets; the console distinguishes loop limits, interruption, and failed or still-unknown business outcomes.
 
 **Dependencies:** F2-T2.
-**Scope:** M, 4 edited files.
+**Scope:** M, 3 edited files.
 
 **Planned files:**
 
 - `src/WftEngineering.Demo/Program.cs`
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`
-- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -96,17 +90,16 @@ Use names containing `Loop`. The test client must count agent invocations throug
 **Verification:**
 
 ```bash
-dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Loop'
-dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
-dotnet format src/WftEngineering.Demo/WftEngineering.Demo.csproj --verify-no-changes --no-restore
+dotnet build src/WftEngineering.slnx -c Release --no-restore
+dotnet format src/WftEngineering.slnx --verify-no-changes --no-restore
 ```
 
-Include `LoopLimits` and `LoopTermination` in test names. For deadlines, use controlled cancellation in tests without waiting two minutes. Check that the evaluator does not need to execute after the fourth invocation to classify the outcome. Prepare the spec's stuck command for a later live rehearsal, without automatically approving it.
+Manually run happy and stuck with actual human approval, and cancel a run with Ctrl+C. Review terminal branches, the fourth-invocation boundary, active-time accounting, and retry limits in source. Do not automatically approve or extend limits to obtain a successful rehearsal.
 
 ## Feature completion
 
 - [ ] T1–T3 and F1 regression verified.
-- [ ] All §6 branches and corresponding §9 cases have tests with evidence of the fake's actual state.
+- [ ] All §6 branches are implemented and source-reviewed; available manual §9 checks are recorded against actual store facts.
 - [ ] Output never claims that stopping the harness canceled an external deployment.
 
 ## Execution evidence

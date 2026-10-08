@@ -4,6 +4,7 @@
 **Depends on:** none.
 **Source:** [global spec](../../production-change-demo.md), §§1–5, 7–9, and 12.
 **Work:** [todo.md](todo.md).
+**Status:** implemented; live Foundry rehearsal pending. See [compatibility evidence](compatibility.md).
 
 ## Feature outcome
 
@@ -13,7 +14,7 @@ Startup and the business flow through approval belong together because they form
 
 ## Scope
 
-- Reuse the existing .NET 10 console and xUnit projects under `src/`, with `.env`, typed settings, DI, and Spectre.Console. Add the agent dependencies and update lock files. Verify the Harness/Skills/approval/loop APIs needed by subsequent features early.
+- Reuse the existing .NET 10 console project under `src/`, with `.env`, typed settings, DI, and Spectre.Console. Add the agent dependencies and update lock files. Verify the Harness/Skills/approval/loop APIs needed by subsequent features early.
 - Configure Foundry through `IChatClient`, injected settings loaded from `.env`/environment variables, and an explicit development identity. Missing or invalid configuration terminates before work begins.
 - Compose `HarnessAgent` with brief general instructions, a local Skill source, `TodoProvider`, a session, the internal limit of 12, and unnecessary capabilities disabled. F2 enables the external loop.
 - Implement `RequestedChange`, CHG-1042, prior health, the fixed clock, simulated permission, and evidence in the store.
@@ -41,7 +42,7 @@ The host communicates facts from the store even if the model claims deployment i
 ## Implementation sequence
 
 1. **Startup and compatibility:** projects, dependencies, client, and configuration; check framework signatures before developing the flow. Temporary experiments stay outside demo code.
-2. **Validation with external context:** store, read tools, Skill, todos, and offline tests. Checkpoint for configuration and absence of side effects.
+2. **Validation with external context:** store, read tools, Skill, todos, and source review. Checkpoint for configuration and absence of side effects.
 3. **Deployment with approval:** native wrapper, minimal UX, rejection, binding, simulated authorization, and idempotency. Verify the complete flow through Running.
 
 See `todo.md` for tasks, acceptance, files, and commands. The project remains runnable after each step; the console explains the scope still awaiting verification.
@@ -50,7 +51,7 @@ See `todo.md` for tasks, acceptance, files, and commands. The project remains ru
 
 1. A valid request produces a loaded Skill, change and health reads, and a question showing the actual change, service, version, and environment; there are zero deployments before acceptance.
 2. Acceptance through the native protocol starts a single DEP-742 in Running; rejection, inconsistent data, missing evidence, and denied permission prevent side effects.
-3. Build and offline tests pass; todos and operational state are separate, and the console does not declare Completed. Document verified compatibility and any pending live checks.
+3. Build and source review pass; todos and operational state are separate, and the console does not declare Completed. Document verified compatibility and any pending live checks.
 
 ## Available manual verification
 
@@ -58,13 +59,13 @@ See `todo.md` for tasks, acceptance, files, and commands. The project remains ru
 dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-build -- --scenario happy
 ```
 
-With Foundry configured, observe the pause, accept or reject from the keyboard, and compare the outcome with the store. A live run requires presenter configuration; scripted tests are mandatory even without credentials.
+With Foundry configured, observe the pause, accept or reject from the keyboard, and compare the outcome with the store. A live run requires presenter configuration. Without it, compile, review the guards, and record the live check as pending. Do not add automated tests or a scripted model client.
 
 ## Risks and implementation boundaries
 
 - Validate versions and signatures in the pinned package, not just examples from `main`. If incompatible, update the spec decision with evidence; do not recreate framework primitives.
 - Load Skills as read-only without a runner; reject unexpected approvals and do not use “always approve”.
-- Keep test helpers in `ProductionChangeTests.cs` initially. If they grow, they may be split within `src/WftEngineering.Demo.Tests/`; do not create production factories or interfaces to accommodate them.
+- Keep one console project with concrete services; no testing project, testing dependencies, scripted model client, or extra application layers.
 - Record evidence in this folder. Do not modify the general README or slides unless a link is essential; F4 completes their walkthrough.
 
 ## Single implementation prompt
@@ -72,7 +73,7 @@ With Foundry configured, observe the pause, accept or reject from the keyboard, 
 ```text
 Apply using-agent-skills and implement feature 01-governed-production-change.
 Read docs/specs/production-change-demo.md, docs/specs/features/README.md, and the plan.md and todo.md files in docs/specs/features/01-governed-production-change/.
-Complete its three tasks with implementation and tests. Keep harness composition visible and use native approvals; this feature's outcome is a started deployment awaiting verification.
+Complete its three tasks with implementation, compilation, and brief manual checks. Keep harness composition visible and use native approvals; this feature's outcome is a started deployment awaiting verification.
 Work only within its scope, without sub-agents, new layers, provisioning, or automatic commits. Check the actual APIs in the pinned package before relying on them.
-Update todo.md with evidence and actual pending items. If credentials are missing, complete offline checks and record the Foundry run as pending. Do not implement feature 02. Write documentation in English.
+Update todo.md with evidence and actual pending items. If credentials are missing, complete compilation and source review and record the Foundry run as pending. Do not implement feature 02. Write documentation in English.
 ```

@@ -18,7 +18,7 @@ This feature delivers Loop Engineering and Graph Engineering branches without in
 - Enable the native loop through `HarnessAgentOptions.LoopEvaluators`, a `DelegateLoopEvaluator`, and `LoopAgentOptions`.
 - Preserve the session, approval protocols, and todos; the model marks tasks and the host determines the outcome from facts.
 - Cover success, failed deployment, invalid subsequent health/version, rejection, cancellation, and work still pending at the limit.
-- Enable `--scenario stuck` alongside `happy`. Other failures are covered by test fixtures; F4 exposes them as presentation scenarios.
+- Enable `--scenario stuck` alongside `happy`. Other failures use deterministic store fixtures; F4 exposes them as presentation scenarios.
 - Add status, continuation, and outcome activities/events alongside flow implementation, using the established source.
 
 Out of scope: an LLM judge, textual completion markers, another planner, multiple evaluators, workflows, rollback, automatic approvals, automatic budget restart, and exporter/viewer.
@@ -60,20 +60,20 @@ The limit check happens before the evaluator; record the final invocation and cl
 2. Stuck consumes at most four invocations after approval and stops with deployment still Running; repeated status, success claims, or completed todos do not bypass controls.
 3. Failures, rejection, and cancellation stop safely; there is no approval/binding/idempotency regression or success based solely on text or declared progress.
 
-## Risks to test explicitly
+## Risks to review explicitly
 
 - The framework may return a transcript at the limit without an exception; do not rely on an assumed exception.
-- The model may request many tools within a run; test both cached snapshots and the internal limit.
+- The model may request many tools within a run; review cached snapshots and the internal limit.
 - The agent may omit status or subsequent health; feedback and the limit must preserve an incomplete outcome.
 - The Skill and todos may encourage continuation after failure; the single evaluator and terminal guards take precedence.
-- Do not turn scripted-client behavior tests into a promise about live-model text or latency.
+- Compilation and source review do not prove live-model behavior or latency; record unavailable live checks as pending.
 
 ## Single implementation prompt
 
 ```text
 Apply using-agent-skills and implement feature 02-bounded-deployment-verification.
-Read docs/specs/production-change-demo.md, docs/specs/features/README.md, and plan.md/todo.md in docs/specs/features/02-bounded-deployment-verification/; check that feature 01 is implemented and its tests pass.
+Read docs/specs/production-change-demo.md, docs/specs/features/README.md, and plan.md/todo.md in docs/specs/features/02-bounded-deployment-verification/; check that feature 01 is implemented and its compilation evidence is recorded.
 Complete the three tasks using the harness LoopAgent and one evaluator over external state. Keep MaxIterations=4, one new snapshot per iteration, and native approvals.
-Test happy, stuck, subsequent verification, and failure branches with the real harness and a scripted IChatClient. Preserve guards and the separation between todos, text, and evidence.
-Update todo.md with results. Do not implement OTLP/viewer, the conference script, or subsequent features; no sub-agents, new layers, provisioning, or automatic commits. Write documentation in English.
+Compile and review happy, stuck, subsequent verification, and failure branches. Manually rehearse available scenarios with the native harness and a live model. Preserve guards and the separation between todos, text, and evidence.
+Update todo.md with results. Do not implement OTLP/viewer, the conference script, or subsequent features; no sub-agents, new layers, provisioning, or automatic commits. Do not add automated tests, a testing project, scripted model clients, or testing dependencies. Write documentation in English.
 ```

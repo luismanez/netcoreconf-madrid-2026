@@ -30,11 +30,13 @@ Fill in `FOUNDRY_PROJECT_ENDPOINT` and `FOUNDRY_MODEL` in `.env`. The template l
 ```bash
 dotnet restore src/WftEngineering.slnx --locked-mode
 dotnet build src/WftEngineering.slnx -c Release --no-restore
-dotnet test src/WftEngineering.slnx -c Release --no-build --no-restore
-dotnet run --project src/WftEngineering.Demo -c Release --no-build
+az login
+dotnet run --project src/WftEngineering.Demo -c Release --no-build -- --scenario happy
 ```
 
-The current scaffold displays the startup screen and validates configuration. The agent workflow is planned in the [feature specifications](docs/specs/features/README.md). See [scaffolding setup and verification](docs/specs/scaffolding.md) for details.
+Feature 01 loads the production-change Skill, reads fake change/health data, shows native todos, and requests human approval. Type `APPROVE` to start the simulated DEP-742 in Running; other input rejects. Verification, the external loop, and telemetry export arrive in later [features](docs/specs/features/README.md). Use a Foundry deployment supporting Responses and function calling. See [implementation evidence and pending live checks](docs/specs/features/01-governed-production-change/compatibility.md).
+
+This conference demo uses one console project and no automated testing.
 
 This repository is intended to accompany the live session and provide attendees with access to the code, examples, and resources discussed during the presentation.
 
