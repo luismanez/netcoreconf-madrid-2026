@@ -1,6 +1,8 @@
 # Spec: Enterprise Production Change Assistant
 
-**Status:** scaffolding and feature 01 implemented; live Foundry rehearsal pending. Features 02–04 remain planned.
+**Status:** scaffolding and features 01–04 implemented and compiled. Foundry/Aspire E2E and conference rehearsal are pending presenter-owned checks.
+
+**Verification scope:** the latest implementation request explicitly requires code and compilation only. The agent does not execute application/E2E checks, start Foundry/Aspire sessions, or add automated testing. Runtime criteria below remain the presenter's rehearsal contract.
 
 **API review date:** 7 October 2026.
 
@@ -31,9 +33,9 @@ Determinism applies to the fake's data, transitions, and controls. A live model 
 
 `HarnessAgent` belongs to the `Microsoft.Agents.AI.Harness` package, uses the `Microsoft.Agents.AI` namespace, and is created with `chatClient.AsHarnessAgent(options)`. It remains an `AIAgent`; the harness composes framework components. [Official harness reference](https://learn.microsoft.com/en-us/agent-framework/concepts/harness).
 
-Proposed baseline to freeze during rehearsal:
+Pinned application dependencies:
 
-| Dependency | Proposed version | Purpose |
+| Dependency | Version | Purpose |
 |---|---|---|
 | `Microsoft.Agents.AI.Harness` | `1.23.0` | Harness; includes the Agent Framework core |
 | `Azure.AI.Projects` | `3.0.0-beta.3` | Foundry project client |
@@ -41,13 +43,13 @@ Proposed baseline to freeze during rehearsal:
 | `Microsoft.Extensions.AI.OpenAI` | `10.10.1` | `IChatClient` adapter |
 | `OpenTelemetry.Exporter.OpenTelemetryProtocol` | `1.19.1` | OTLP SDK/export |
 
-The implemented scaffold uses .NET SDK `10.0.202`, `DotNetEnv` `3.2.0`, `Spectre.Console` `0.57.2`, and Microsoft.Extensions.Configuration/EnvironmentVariables/DependencyInjection `10.0.6`. The agent dependencies above were restored and compiled in F1; only the exporter remains planned for F3. See [F1 compatibility evidence](features/01-governed-production-change/compatibility.md). See [scaffolding decisions and verification](scaffolding.md).
+The implemented scaffold uses .NET SDK `10.0.202`, `DotNetEnv` `3.2.0`, `Spectre.Console` `0.57.2`, and Microsoft.Extensions.Configuration/EnvironmentVariables/DependencyInjection `10.0.6`. The agent dependencies were restored and compiled in F1; the exporter was restored and compiled in F3. See [F1 historical compatibility evidence](features/01-governed-production-change/compatibility.md) and [current compilation / presenter rehearsal status](features/04-conference-scenarios/rehearsal.md). See [scaffolding decisions and verification](scaffolding.md).
 
 These versions are published: [Harness 1.23.0](https://www.nuget.org/packages/Microsoft.Agents.AI.Harness/1.23.0), [Projects](https://www.nuget.org/packages/Azure.AI.Projects/3.0.0-beta.3), [Identity](https://www.nuget.org/packages/Azure.Identity/1.21.0), [adapter](https://www.nuget.org/packages/Microsoft.Extensions.AI.OpenAI/10.10.1), and [exporter](https://www.nuget.org/packages/OpenTelemetry.Exporter.OpenTelemetryProtocol/1.19.1). The [.NET 1.23.0 release](https://github.com/microsoft/agent-framework/releases/tag/dotnet-1.23.0) updates Projects and Microsoft.Extensions.AI to this API family.
 
 The gallery also lists `1.24.0` dated 7 October. The proposal is to freeze `1.23.0`, already published and documented, without updating packages on the day of the talk. Looping APIs remain marked experimental: pin versions and explicitly acknowledge `MAAI001`, without suppressing all warnings. [Looping](https://learn.microsoft.com/en-us/agent-framework/agents/looping), [official sample](https://github.com/microsoft/agent-framework/blob/main/dotnet/samples/02-agents/Harness/Harness_Step05_Loop/Program.cs).
 
-**Verification status:** F1 restored and compiled the agent/client combination and used provider/approval APIs. Native external-loop compatibility is checked in F2; approval + streaming + looping behavior still requires the chosen live model. Documentation and links to `main` do not replace that check. If the pinned package differs, update this spec first; do not invent an equivalent API.
+**Verification status:** the pinned model/client/Skill/todo/approval/loop/streaming/exporter APIs compile in the final app. Actual model behavior, native continuation, and trace delivery require presenter-owned E2E checks. Documentation and links to `main` do not replace that check. If the pinned package differs, update this spec first; do not invent an equivalent API.
 
 ## 3. Minimal architecture and responsibilities
 
@@ -74,7 +76,7 @@ Console host
 | `AgentSession` / `TodoProvider` | History, approval continuity, and declared task progress. |
 | Local evaluator in `Program.cs` | Decide `Continue`/`Stop` by reading the store and enable the fake's next observation. The framework runs the loop. |
 
-Planned structure:
+Implemented structure:
 
 ```text
 docs/specs/production-change-demo.md
@@ -86,6 +88,7 @@ src/WftEngineering.Demo/
 ├── DemoApplication.cs
 ├── Tools/DeploymentTools.cs
 ├── Demo/DemoDeploymentStore.cs
+├── Telemetry/SafeErrorProcessor.cs
 └── skills/production-change/SKILL.md
 ```
 
@@ -147,7 +150,7 @@ Global instructions: use tools to learn about external systems, load the relevan
 
 Initially, the provider advertises the Skill's name and description. `load_skill` adds the procedure when the model selects it. Tool results add change, health, and deployment data; history and todos provide session continuity. Do not add another context builder to duplicate these mechanisms. [Agent Skills](https://learn.microsoft.com/en-us/agent-framework/agents/skills).
 
-Planned Skill content: retrieve the change; verify approval, service, version, environment, and window; check prior health; stop if anything fails; create the five tasks; propose deployment and wait for approval; query one observation per iteration; verify subsequent health and version; complete only with evidence. Polling instructions guide the model, but the fake limits new observations through code.
+Implemented Skill content: retrieve the change; verify approval, service, version, environment, and window; check prior health; stop if anything fails; create the five tasks; propose deployment and wait for approval; query one observation per iteration; verify subsequent health and version; complete only with evidence. Polling instructions guide the model, but the fake limits new observations through code.
 
 The provider adds its own tools alongside the four business tools. The reviewed code even advertises `run_skill_script`; this spec does not assume it disappears when scripts are omitted. The Skill will have no scripts or executable resources, there will be no runner, and the host will reject any approval unrelated to `DeployService`. The read-only rule does not automatically approve scripts, and its reserved names must not collide with business tools. [Provider code](https://github.com/microsoft/agent-framework/blob/main/dotnet/src/Microsoft.Agents.AI/Skills/AgentSkillsProvider.cs).
 
@@ -284,11 +287,11 @@ demo.run
 
 Use the standalone Aspire dashboard, without an AppHost or additional collector. Prepare its image locally and keep it pinned after rehearsal; do not download or update it live. [Standalone dashboard](https://aspire.dev/dashboard/standalone/).
 
-Allowed data: tool names, duration, iteration, observation counter, statuses, approval decision, outcome, and TraceId. Business IDs are allowed only because they are fictional. Keep `EnableSensitiveData` disabled; do not capture prompts, responses, arguments, complete results, or raw exceptions. Do not export conversation logs or HTTP bodies. Any eventual content capture would be an explicit development option, outside the main walkthrough.
+Allowed data: tool names, duration, iteration, observation counter, statuses, approval decision, outcome, and TraceId. Business IDs are allowed only because they are fictional. Keep `EnableSensitiveData` disabled; do not capture prompts, responses, arguments, complete results, or raw exceptions. `SafeErrorProcessor` clears native error status descriptions before export; detailed function errors are disabled. OTLP request/processor timeouts are 1000 ms, followed by 2000 ms flush and shutdown attempts after root closure. Export cleanup does not change the operational outcome. Do not export conversation logs or HTTP bodies. Any eventual content capture would be an explicit development option, outside the main walkthrough.
 
-## 8. Planned commands
+## 8. Commands
 
-Restore/build and `--scenario happy` are available after F1. The dashboard/exporter and `stuck` commands require later features. Run from the repository root.
+Restore/build and all five scenario selectors are implemented. The exporter is connected; the presenter runs the dashboard and verifies actual delivery. See the [runbook](../demo-runbook.md). Run from the repository root.
 
 ```bash
 # Restore, build, and formatting
@@ -313,11 +316,11 @@ dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Relea
 dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-build -- --scenario stuck
 ```
 
-Open the dashboard access link from its logs; do not disable authentication. The host receives a typed `RequestedChange` from the scenario and constructs the request in English; do not add a general natural-language parser. The model must query business data even though the host already knows the requested target. For manual mismatch checks during later scenario implementation, change the version or change ID in that request and verify it is never silently converted to the canonical target. Pin the exact model name during rehearsal; do not guess it when configuration is missing.
+Open the dashboard access link from its logs; do not disable authentication. The host receives a typed `RequestedChange` from the scenario and constructs the request in English; do not add a general natural-language parser. The model must query business data even though the host already knows the requested target. For presenter-owned manual mismatch checks, change the version or change ID in that request and verify it is never silently converted to the canonical target. Pin the exact model name during rehearsal; do not guess it when configuration is missing.
 
 ## 9. Verification and acceptance criteria
 
-Do not create or run automated tests for this conference demo. Compile, review the authorization and limit guards, and use brief manual runs with the configured live model. The matrix below describes expected behavior across the four features; mark live checks pending when credentials are unavailable. Do not replace the model with a scripted client or claim runtime verification from compilation alone.
+Do not create or run automated tests for this conference demo. The agent compiles and reviews the authorization/limit guards. The presenter performs all manual/E2E runs with the configured live model and dashboard. The matrix below describes expected behavior across the four implemented features; live checks remain pending until the presenter records them. Do not replace the model with a scripted client or claim runtime verification from compilation alone.
 
 | Case | Verifiable outcome |
 |---|---|
@@ -372,10 +375,10 @@ Consult before expanding scope: adding explicit workflows, multiple providers, r
 
 Never: use LLM decisions as authorization, automatically approve deployment, execute scripts/code/shell, put secrets in the repository, or declare success while external work remains pending.
 
-## 12. Outstanding items to close the proposal
+## 12. Presenter-owned outstanding checks
 
 - Confirm the Foundry project/model available for rehearsal; the spec proposes this provider without requiring provisioning.
-- F1 pinned versions and used provider signatures compile. Verify live approval continuation in F1; verify native external-loop APIs and invocation counts in F2.
+- Native approval, loop, streaming, and exporter APIs compile. Verify actual approval continuation, invocation/observation counts, budgets, and privacy with the chosen live model/viewer.
 - Confirm the dashboard image and duration during rehearsal; pin the SDK version too.
 
-The feature plans and task lists are in [features/README.md](features/README.md). Scaffolding, business read/deploy tools, Skill/todos, and native approval hosting are implemented. Live F1 rehearsal, external looping, telemetry export, and conference preparation remain pending.
+The feature plans and task lists are in [features/README.md](features/README.md). Scaffolding, four business tools, Skills/todos, native approval/looping, streaming, telemetry export, scenarios, and the conference runbook are implemented and compile. All E2E, image/model availability, trace/privacy inspection, duration measurements, and conference rehearsal remain with the presenter.

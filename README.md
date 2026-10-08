@@ -34,7 +34,9 @@ az login
 dotnet run --project src/WftEngineering.Demo -c Release --no-build -- --scenario happy
 ```
 
-Feature 01 loads the production-change Skill, reads fake change/health data, shows native todos, and requests human approval. Type `APPROVE` to start the simulated DEP-742 in Running; other input rejects. Verification, the external loop, and telemetry export arrive in later [features](docs/specs/features/README.md). Use a Foundry deployment supporting Responses and function calling. See [implementation evidence and pending live checks](docs/specs/features/01-governed-production-change/compatibility.md).
+The demo loads the production-change Skill, queries fake change/health data, shows native todos, and requests human approval. Type `APPROVE` to start DEP-742 and let the bounded native loop verify deployment and subsequent health/version; other input rejects. The console streams agent text separately from operational facts and exports traces over local OTLP. Use a Foundry deployment supporting Responses and function calling.
+
+Available scenarios: `happy`, `stuck`, `validation-failed`, `deployment-failed`, and `post-health-failed`. See the [setup, scenario commands, and twelve-minute walkthrough](docs/demo-runbook.md). Features 01–04 are implemented and compile; Foundry/Aspire E2E and rehearsal remain with the presenter. [Compilation evidence and pending checks](docs/specs/features/04-conference-scenarios/rehearsal.md).
 
 This conference demo uses one console project and no automated testing.
 

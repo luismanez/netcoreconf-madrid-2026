@@ -1,5 +1,7 @@
 # Tasks: 01-governed-production-change
 
+**Historical F1 checkpoint:** F1 ended at Running. The current application includes F2–F4 and verifies happy through Completed; use the [current runbook](../../../demo-runbook.md). E2E/rehearsal is presenter-owned and remains pending.
+
 **Status:** implementation complete; compilation and startup checks passed. Live Foundry approval/rejection rehearsal is pending because no `.env` is configured.
 
 Verification follows the presenter's decision: no test project, automated tests, scripted model client, or testing dependencies. Use compilation, source review, and brief manual checks.

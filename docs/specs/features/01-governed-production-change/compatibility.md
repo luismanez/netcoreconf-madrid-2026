@@ -1,5 +1,7 @@
 # Feature 01: implementation and compatibility evidence
 
+**Historical F1 checkpoint:** F1 ended at Running. The current application includes F2–F4 and verifies happy through Completed; use the [current runbook](../../../demo-runbook.md). E2E/rehearsal is presenter-owned and remains pending.
+
 **Date:** 8 October 2026.
 
 One console project, concrete services, and a small in-memory business store implement the flow. Harness composition is in `Program.cs`; presentation and the single approval round trip are in `DemoApplication.cs`. There is no testing project or additional application layer.

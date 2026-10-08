@@ -1,112 +1,41 @@
 # Tasks: 04-conference-scenarios
 
-Initial status: pending; requires F3 complete and F1/F2 implementation complete.
+**Status:** implementation and documentation complete; compilation passed. Conference rehearsal/E2E is owned by the presenter and remains pending.
 
-## F4-T1 — Run success and stopping scenarios with one command
+## F4-T1 — Select prepared scenarios
 
-- [ ] Implemented and verified.
+- [x] happy, stuck, validation-failed, deployment-failed, and post-health-failed select deterministic store fixtures.
+- [x] Unknown arguments are rejected before configuration/model creation; help works before configuration, and default startup selects happy.
+- [x] Every launch creates fresh state/session. All scenarios share approval, authorization, privacy, and loop limits.
+- [x] Rejection remains an actual human response; no approval bypass or extra executable capability exists.
 
-**Description:** complete a minimal CLI selector using the existing store and fixtures. Keep harness controls identical across all scenarios.
+## F4-T2 — Prepare the conference walkthrough
 
-**Dependencies:** F3 complete.
-**Scope:** M, 3 edited files.
+- [x] docs/demo-runbook.md created and linked from README with root commands, empty-template configuration, Azure CLI login, and authenticated standalone viewer instructions.
+- [x] Five scenario outcomes, exit codes, counters, deadline/retry behavior, and recovery documented as expected behavior.
+- [x] Twelve-minute script and seven code-element map cover Prompt/Context/Loop/Graph/Harness.
+- [x] SDK/packages pinned and lock file generated; proposed image tag recorded. Live walkthrough uses --no-build.
+- [x] Backup recording instructions provided; no deck, video, publication, provisioning, or additional architecture created.
 
-**Planned files:**
+## F4-T3 — Record implementation and pending rehearsal
 
-- `src/WftEngineering.Demo/Program.cs`
-- `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
+- [x] Source review retains exact target/read/permission/approval guards, idempotency, terminal outcomes, post-health/version evidence, and loop limits.
+- [x] Model arguments cannot mutate request, permissions, limits, or available capabilities; source instructions distinguish external data from instructions.
+- [x] rehearsal.md created with compilation evidence, presenter checklist, and blank operational record format; no fabricated E2E results.
 
-**Acceptance:**
-
-- [ ] happy, stuck, validation-failed, deployment-failed, and post-health-failed use only fake variants and end with the outcomes in plan.md.
-- [ ] Unknown arguments fail before invoking the model; each run resets session/store and RequestedChange remains under host control.
-- [ ] Reject still comes from the human response; no scenario automatically approves, changes limits, or enables scripts/shell/other capabilities.
-
-**Verification:**
-
-```bash
-dotnet build src/WftEngineering.slnx -c Release --no-restore
-```
-
-The invalid scenario must exit before model invocation. Review fresh state/session creation and shared controls across fixtures, then manually exercise the available scenarios with actual human decisions.
-
-## F4-T2 — Prepare commands and the conference walkthrough
-
-- [ ] Implemented and verified.
-
-**Description:** write the operational/teaching runbook and freeze verified versions to avoid live environment changes.
-
-**Dependencies:** F4-T1.
-**Scope:** M, up to 3 edited files.
-
-**Planned files:**
-
-- `docs/demo-runbook.md`
-- `README.md`, link to the demo/runbook while preserving other materials
-- `global.json`, only to adjust the exact validated SDK
-
-**Acceptance:**
-
-- [ ] Runbook includes complete commands from the root, variables without secrets, login, authenticated dashboard, and actual paths/scenarios; README links to it.
-- [ ] SDK, packages, and locks are pinned and the local image is verified/pinned before the talk; the walkthrough uses --no-build and does not download/provision live.
-- [ ] A 12-minute script shows the seven code elements and five Engineering concepts; it offers rejection/stuck and a recorded backup labeled as such, without creating slides/video or changing the entire talk.
-
-**Verification:**
+## Compilation evidence
 
 ```bash
-dotnet build src/WftEngineering.slnx -c Release --no-restore
+dotnet build src/WftEngineering.slnx -c Release --no-restore -m:1 -nodeReuse:false
 ```
 
-Review runbook commands, local links, and scenario names against code. Check the image/dashboard if Docker is available. Do not change versions automatically to latest; document any compatibility changes before freezing the environment again.
+F4 checkpoint and final combined implementation: passed with zero warnings and zero errors. Verification for this request is code inspection and compilation only; no tests or application/E2E execution were performed.
 
-### Checkpoint after T2
+## Pending — presenter-owned conference readiness
 
-- [ ] Runbook commands match the actual project and contain no secrets or external business dependencies.
-- [ ] Scenarios and presentation fit the walkthrough without showing too many APIs.
-- [ ] The demo remains concentrated in a single console project and Skill under `src/`.
+- [ ] Model/project access, actual model behavior, and all scenario/approval/cancellation paths checked with Foundry.
+- [ ] Aspire image availability/digest, authenticated access, actual trace correlation/coverage/privacy, and exporter behavior checked.
+- [ ] Five happy runs, reject, stuck, active duration, and teaching walkthrough recorded in rehearsal.md.
+- [ ] Final model/image identity frozen locally and a clearly labeled recorded backup prepared before the talk.
 
-## F4-T3 — Verify the matrix and rehearse the session
-
-- [ ] Implemented and verified.
-
-**Description:** review the complete scenario matrix and record manual rehearsal. Close relevant behavior gaps from §9 without adding testing infrastructure.
-
-**Dependencies:** F4-T2.
-**Scope:** M, up to 4 edited files; code changes only to fix discovered failures.
-
-**Planned files:**
-
-- `src/WftEngineering.Demo/Program.cs`, if integrated behavior fails
-- `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`, if an invariant fails
-- `src/WftEngineering.Demo/Tools/DeploymentTools.cs`, if a guard fails
-- `docs/specs/features/04-conference-scenarios/rehearsal.md`, evidence created during implementation
-
-**Acceptance:**
-
-- [ ] Source review and manual scenario checks cover negative validation, altered/unbound binding, changed permission/precondition, repeats/idempotency, limits, and subsequent failure; todos/text cannot replace evidence.
-- [ ] A fake result with adversarial instructions does not change RequestedChange, permissions, limits, or available tools, or produce side effects without approval; available manual checks are recorded and privacy settings remain intact.
-- [ ] Rehearsal records five happy runs with a live model, reject and stuck, trace/privacy, active duration, and the teaching walkthrough; missing inputs leave these checks pending without declaring the demo conference-ready.
-
-**Verification:**
-
-```bash
-dotnet build src/WftEngineering.slnx -c Release --no-restore
-dotnet format src/WftEngineering.slnx --verify-no-changes --no-restore
-```
-
-Use the runbook with human approval and a live model. Target happy under 90 seconds of active work. Record date/environment, SDK/packages/image/model, scenario, outcome, invocations, observations, side effects, active duration, and trace checks in rehearsal.md. Missing inputs remain pending. Fix discovered failures and repeat only affected checks.
-
-## Implementation completion
-
-- [ ] T1–T3 implementation, compilation, and available manual checks complete; pending live checks explicitly recorded.
-- [ ] README/runbook and evidence updated, without expanding scope or adding architecture.
-
-## Conference readiness
-
-- [ ] Live-model/dashboard rehearsals and duration recorded; pending environment checks resolved.
-- [ ] Model/image/SDK frozen and resources prepared before the session.
-- [ ] The presenter can locate the seven code elements and has the main walkthrough and a brief alternative.
-
-## Execution evidence
-
-Pending. Keep compiled/source-reviewed implementation separate from conference readiness; link `rehearsal.md` once created and record actual limitations.
+See [rehearsal.md](rehearsal.md) and the [runbook](../../../demo-runbook.md). These pending checks are deliberately outside the agent's implementation request.

@@ -4,6 +4,9 @@
 **Depends on:** [02-bounded-deployment-verification](../02-bounded-deployment-verification/plan.md).
 **Source:** [global spec](../../production-change-demo.md), §§3–4 and 7–11.
 **Work:** [todo.md](todo.md).
+**Status:** implementation complete and compiled. Presenter-owned E2E/rehearsal remains pending.
+
+**Current verification scope:** the combined implementation request requires code and compilation only. Any manual/E2E requirements below are presenter follow-up, not agent execution requirements. No automated testing is permitted.
 
 ## Feature outcome
 

@@ -1,107 +1,36 @@
 # Tasks: 03-observable-demo-session
 
-Initial status: pending; requires F2 complete and F1 implementation complete.
+**Status:** implemented and compiled. Actual trace delivery, console behavior, and privacy inspection are pending presenter-owned E2E checks.
 
-## F3-T1 — Export a trace covering the complete session
+## F3-T1 — Export the session trace
 
-- [ ] Implemented and verified.
+- [x] OpenTelemetry exporter 1.19.1 added and locked; tracer subscribes to WftEngineering.Demo and uses the configured gRPC endpoint.
+- [x] Native harness instrumentation reused, with dedicated root/tool/approval/evaluation activities and resumption/outcome tags.
+- [x] Root spans the approval round trip; sensitive capture explicitly disabled for agent/client and detailed function errors disabled.
+- [x] Export requests/processors bounded to 1 second; 2-second flush and shutdown attempted after root closure. Export errors preserve the operational outcome.
+- [x] SafeErrorProcessor clears raw error status descriptions before the exporter; no separate client telemetry wrapper added.
 
-**Description:** connect source/exporter and complete correlation/lifecycle of the trace instrumented during earlier features.
+## F3-T2 — Present the session
 
-**Dependencies:** F2 complete.
-**Scope:** M, up to 4 edited files.
+- [x] Native RunStreamingAsync updates rendered with Spectre.Console and Agent labels; native ToAgentResponse preserves approval content.
+- [x] Harness iteration headers use host/evaluator counters. Tool facts come from actual typed results, including new/cached observations.
+- [x] Skill load checked in native history; todos read through the same session provider and labeled declared progress.
+- [x] Exact approval arguments and final store facts/health/status/counters/Trace ID displayed. No private reasoning rendered or second planner added.
 
-**Planned files:**
+## F3-T3 — Prepare privacy and visualization
 
-- `src/WftEngineering.Demo/Program.cs`
-- `src/WftEngineering.Demo/WftEngineering.Demo.csproj`, only if the OTLP reference is still missing
-- `src/WftEngineering.Demo/Tools/DeploymentTools.cs`, only for gaps in operational coverage
-- `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`, only for gaps in state events
-- Generated if the reference changes: lock files for affected projects
+- [x] Only trace export configured; no transcript/HTTP body logging, prompt capture, TUI, AppHost, or collector added.
+- [x] Standalone authenticated viewer instructions and source/privacy details documented in the runbook and telemetry-verification.md.
+- [ ] Presenter confirms actual trace coverage/correlation, automatic span names, privacy, delivery, and flush behavior in Aspire.
+- [ ] Presenter reviews readability and outcome consistency for happy, reject, stuck, and cancellation.
 
-**Acceptance:**
-
-- [ ] TracerProvider listens to WftEngineering.Demo, exports to configurable local OTLP, and preserves harness instrumentation without another wrapper around the same client.
-- [ ] demo.run correlates validation, approval, and subsequent runs; spans/events contain operations and state, not a transcript. The pause includes decision and duration.
-- [ ] Closure, cancellation, and failure flush/dispose within a bounded budget and show TraceId; an exporter error is not confused with deployment failure.
-
-**Verification:**
-
-```bash
-dotnet build src/WftEngineering.slnx -c Release --no-restore
-```
-
-Inspect the configured source, privacy settings, and bounded flush/disposal in source. With Foundry and the local dashboard available, follow TraceId and ParentSpanId through approval and continuation in the authenticated viewer. Record unavailable live checks as pending.
-
-## F3-T2 — Present facts, tasks, and iterations clearly
-
-- [ ] Implemented and verified.
-
-**Description:** prepare the console for the audience with streaming and simple blocks. Keep harness control visible and prevent model text from appearing to be evidence.
-
-**Dependencies:** F3-T1.
-**Scope:** M, up to 3 edited files.
-
-**Planned files:**
-
-- `src/WftEngineering.Demo/DemoApplication.cs`
-- `src/WftEngineering.Demo/Tools/DeploymentTools.cs`, if fact notifications are missing
-
-**Acceptance:**
-
-- [ ] Agent and Harness are distinct; the loaded Skill, verified change/window/health, and five todos come from actual events/results and the session.
-- [ ] Approval shows exact bound arguments, accepts only an explicit decision, and preserves safe behavior on rejection/EOF/invalid input.
-- [ ] Iteration and observation are separate; the summary uses external state in happy/reject/stuck, shows TraceId, and does not announce success or external cancellation without evidence.
-
-**Verification:**
+## Compilation evidence
 
 ```bash
-dotnet build src/WftEngineering.slnx -c Release --no-restore
+dotnet restore src/WftEngineering.slnx --use-lock-file
+dotnet build src/WftEngineering.slnx -c Release --no-restore -m:1 -nodeReuse:false
 ```
 
-Manually inspect happy, reject, and stuck output. Check labels, exact approval arguments, provider todos, independent counters, and operational summaries against the store. Do not compare or freeze generated model text.
+Exporter restore and F3 build passed with zero warnings and zero errors. The final combined F2–F4 build also passed. Native streaming/merge, tracer, OTLP options, processor, flush, and shutdown APIs compile against pinned packages. See [telemetry-verification.md](telemetry-verification.md).
 
-### Checkpoint after T2
-
-- [ ] Happy, reject, and stuck are readable and their outcomes match the store.
-- [ ] Counters do not derive from model phrase/ResponseId changes.
-- [ ] Existing authorization guards and loop limits remain intact.
-
-## F3-T3 — Verify privacy and local visualization
-
-- [ ] Implemented and verified.
-
-**Description:** demonstrate that export contains sufficient operational data without capturing content and prepare the local Aspire viewer check.
-
-**Dependencies:** F3-T2.
-**Scope:** M, up to 3 edited files.
-
-**Planned files:**
-
-- `src/WftEngineering.Demo/Program.cs`, privacy/lifecycle adjustments only
-- `docs/specs/features/03-observable-demo-session/telemetry-verification.md`, brief evidence during implementation
-
-**Acceptance:**
-
-- [ ] Exported tags/events/logs contain only allowed operational facts; sensitive capture remains disabled and privacy settings are reviewed in source.
-- [ ] The trace contains approval/status/health/closure facts in happy and negative branches; no duplicate client instrumentation or raw exceptions/bodies.
-- [ ] Local command and dashboard authentication are verified when the environment exists; the record distinguishes compilation/source review from pending live viewer checks.
-
-**Verification:**
-
-```bash
-dotnet build src/WftEngineering.slnx -c Release --no-restore
-dotnet format src/WftEngineering.slnx --verify-no-changes --no-restore
-```
-
-Use the dashboard commands in plan.md and the spec with actual human approval. Inspect exported tags/events for operational facts and absence of prompts, responses, complete arguments/results, and raw exceptions. Record actual span names, privacy checks, and limitations in telemetry-verification.md without saving conversation content.
-
-## Feature completion
-
-- [ ] T1–T3 verified and F1/F2 guards and limits preserved.
-- [ ] Composition remains small; no TUI, collector, AppHost, or capabilities have been added.
-- [ ] Telemetry evidence and this checklist separate compilation/source review from pending local/live checks.
-
-## Execution evidence
-
-Pending. Record commands, outcomes, trace coverage, privacy, and actual viewer status. Keep fictional IDs and avoid copying prompts/responses into evidence.
+No application/E2E execution, live trace collection, Docker launch, or automated tests were performed, as requested.

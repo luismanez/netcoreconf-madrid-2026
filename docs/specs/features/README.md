@@ -1,12 +1,12 @@
 # Implementation plan: Production Change Assistant
 
-**Verification policy:** this conference demo has no automated tests, testing project/dependencies, or scripted model client. This explicit presenter decision applies to all later implementation prompts. Use compilation, source review, and brief manual checks; record live checks as pending if their prerequisites are unavailable.
+**Verification policy:** this conference demo has no automated tests, testing project/dependencies, or scripted model client. This explicit presenter decision applies to all later implementation prompts. For the combined F2–F4 request, verification is code inspection and compilation only; the presenter explicitly owns all Foundry/Aspire E2E and rehearsal. Do not run those checks or add testing infrastructure.
 
 Functional source of truth: [demo spec](../production-change-demo.md). This plan breaks down its implementation; it does not change its decisions or create application code.
 
 Feature plans and task lists live in `docs/specs/features/<feature>/`. There is no duplicate plan in `tasks/`. Each `todo.md` is the sole work checklist for its feature. Write all specification and implementation documentation in English.
 
-[Scaffolding](../scaffolding.md) is implemented: .NET 10, `.env`, typed settings, built-in DI, Spectre.Console, with a single console project. F1 is implemented with [compatibility evidence](01-governed-production-change/compatibility.md); its live rehearsal is pending. Features 02–04 remain planned. All code projects live under `src/`.
+[Scaffolding](../scaffolding.md) is implemented: .NET 10, `.env`, typed settings, built-in DI, Spectre.Console, with a single console project. Features 01–04 are implemented and compile. F1 has [historical compatibility evidence](01-governed-production-change/compatibility.md); current compilation and pending presenter checks are in [rehearsal.md](04-conference-scenarios/rehearsal.md). Use the [runbook](../../demo-runbook.md) for the complete demo. All code projects live under `src/`.
 
 ## Features and implementation order
 
@@ -28,7 +28,7 @@ Each feature groups a demonstrable capability, with three internal tasks and one
 
 ## How to implement a feature with one prompt
 
-Copy the prompt from its `plan.md`. The agent must read the global spec, the feature plan, and its `todo.md`, check dependencies, and complete the implementation with compilation, brief manual checks, and documentation of the outcome. It must not implement the next feature, reorganize the architecture, or create sub-agents.
+Copy the prompt from its `plan.md`. The agent reads the global spec, the feature plan, and its `todo.md`, checks dependencies, and completes the authorized scope with compilation and documentation. E2E/rehearsal is assigned to the presenter. A combined request may authorize subsequent features in order; do not reorganize the architecture or create sub-agents.
 
 The planning request authorizes preparation of these documents. Implementation begins with a subsequent request to implement a feature. Feature folders contain documentation; code belongs in `src/`, as specified in the spec.
 
@@ -40,7 +40,7 @@ The planning request authorizes preparation of these documents. Implementation b
 - **Approval:** `ApprovalRequiredAIFunction`, `ToolApprovalRequestContent`, `CreateResponse`, and the same `AgentSession`. No permission comes from the model.
 - **State:** separate store facts, progress declared by `TodoProvider`, and agent messages. Only operational evidence determines Completed.
 - **Loop:** a single `DelegateLoopEvaluator`; `MaxIterations = 4` per loop run, `MaximumIterationsPerRequest = 12` for function calling, and no autonomous restart when the budget is exhausted.
-- **Instrumentation:** F1 and F2 add activities/events as each operation is introduced. F3 connects the exporter and viewer and verifies the complete session. The shared source is `WftEngineering.Demo`; sensitive content capture is disabled from the start.
+- **Instrumentation:** F1 and F2 add activities/events as each operation is introduced. F3 connects the exporter; the presenter verifies the complete session in the viewer. The shared source is `WftEngineering.Demo`; sensitive content capture is disabled from the start.
 
 Keep DI and harness composition visible in `Program.cs`, typed configuration in `DemoSettings.cs`, and the Spectre.Console presentation/session flow in `DemoApplication.cs`. Future tool implementation belongs in `DeploymentTools.cs` and data in `DemoDeploymentStore.cs`. Copy the Skill to the output directory and resolve it from `AppContext.BaseDirectory`. Keep web, file memory, modes, and compaction disabled; do not enable scripts, shell, MCP, CodeAct, file access, or background agents.
 
@@ -68,7 +68,7 @@ At feature completion, update its `todo.md` with commands, results, and limitati
 
 The Foundry endpoint/model, an identity with access, .NET 10 SDK, and Docker for the dashboard are inputs to the implementation/rehearsal environment. They are not needed to write this plan. If credentials are missing, complete the build and source review and record the live rehearsal as pending; do not provision infrastructure or invent results.
 
-Parallel implementation is not planned: all features modify `Program.cs` and shared state. A sequence of prompts avoids concurrent contract and code changes in the same files.
+Parallel implementation is not planned: all features modify `Program.cs` and shared state. The presenter authorized features 02–04 in one prompt, executed sequentially with a build checkpoint per feature. No sub-agents were used.
 
 ## Risks to resolve early
 

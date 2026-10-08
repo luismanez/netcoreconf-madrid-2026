@@ -7,26 +7,30 @@ using Spectre.Console;
 namespace WftEngineering.Demo;
 
 internal sealed class DemoApplication(
-    IAnsiConsole console, HarnessAgent agent, DemoDeploymentStore store, ActivitySource activities)
+    IAnsiConsole console, HarnessAgent agent, DemoDeploymentStore store, DeploymentTools tools, ActivitySource activities)
 {
+    private bool agentTextStarted;
+
     public async Task<int> RunAsync(CancellationToken cancellationToken)
     {
         using var run = activities.StartActivity("demo.run")
             ?? new Activity("demo.run").SetIdFormat(ActivityIdFormat.W3C).Start();
-        run.SetTag("demo.scenario", "happy");
+        run.SetTag("demo.scenario", store.Scenario.ToString());
         var activeTime = new Stopwatch();
         console.Write(new FigletText("WTF").Color(Color.Cyan1));
-        console.Write(new Panel("[bold]Production Change Assistant[/]\nPrompt · Context · Harness")
-            .Header("Feature 01 — simulated production change").RoundedBorder().BorderColor(Color.Cyan1));
+        console.Write(new Panel("[bold]Production Change Assistant[/]\nPrompt · Context · Loop · Graph · Harness")
+            .Header("Simulated production change").RoundedBorder().BorderColor(Color.Cyan1));
         console.WriteLine(store.Requested.ToPrompt());
         console.MarkupLine("[dim]Available Skill: production-change (loaded on demand). Ctrl+C cancels.[/]");
+        store.IterationStarted += ShowIteration;
+        tools.ToolCompleted += ShowToolResult;
 
         try
         {
             var session = await agent.CreateSessionAsync(cancellationToken);
             var response = await RunAgentAsync(
                 [new ChatMessage(ChatRole.User, store.Requested.ToPrompt())], session, activeTime, cancellationToken);
-            await ShowProgressAsync(session, response, cancellationToken);
+            await ShowProgressAsync(session, cancellationToken);
 
             var requests = ApprovalRequests(response);
             if (requests.Length > 0)
@@ -70,16 +74,11 @@ internal sealed class DemoApplication(
                     requests.Select(request => (AIContent)request.CreateResponse(approved)).ToList());
                 run.AddEvent(new ActivityEvent("agent.resume"));
                 response = await RunAgentAsync([reply], session, activeTime, cancellationToken);
-                await ShowProgressAsync(session, response, cancellationToken);
+                await ShowProgressAsync(session, cancellationToken);
                 if (ApprovalRequests(response).Length > 0)
                 {
-                    store.Stop(DemoOutcome.ValidationFailed, "A second approval round is outside feature 01.");
+                    store.Stop(DemoOutcome.ValidationFailed, "Only one deployment approval round is allowed.");
                 }
-            }
-
-            if (store.Outcome == DemoOutcome.Pending && store.Deployment is null)
-            {
-                store.Stop(DemoOutcome.Error, "The agent returned without starting the approved deployment.");
             }
         }
         catch (OperationCanceledException)
@@ -91,11 +90,22 @@ internal sealed class DemoApplication(
         {
             store.Stop(DemoOutcome.Error, "Agent execution failed. Check Azure CLI sign-in, Foundry access, and model compatibility.");
         }
+        finally
+        {
+            store.IterationStarted -= ShowIteration;
+            tools.ToolCompleted -= ShowToolResult;
+        }
 
         run.SetTag("demo.outcome", store.Outcome.ToString());
         run.SetTag("demo.active_ms", activeTime.ElapsedMilliseconds);
+        run.SetTag("deployment.id", store.Deployment?.DeploymentId);
+        run.SetTag("deployment.status", store.Deployment?.Status);
+        run.SetTag("deployment.observations", store.ObservationCount);
+        run.SetTag("loop.run", store.LoopRunNumber);
+        run.SetTag("loop.iteration", store.CurrentIteration);
+        run.SetStatus(store.Outcome == DemoOutcome.Completed ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
         ShowOutcome(run.TraceId.ToString());
-        return store.Outcome == DemoOutcome.Pending ? 0 : 1;
+        return store.Outcome == DemoOutcome.Completed ? 0 : 1;
     }
 
     private async Task<AgentResponse> RunAgentAsync(
@@ -110,10 +120,35 @@ internal sealed class DemoApplication(
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         deadline.CancelAfter(remaining);
         activeTime.Start();
+        store.BeginLoopRun();
         try
         {
-            return await console.Status().Spinner(Spinner.Known.Dots).StartAsync("Agent working…",
-                _ => agent.RunAsync(messages, session, cancellationToken: deadline.Token));
+            var updates = new List<AgentResponseUpdate>();
+            await foreach (var update in agent.RunStreamingAsync(messages, session, cancellationToken: deadline.Token))
+            {
+                updates.Add(update);
+                if (update.Role != ChatRole.User && update.Role != ChatRole.Tool && update.Role != ChatRole.System
+                    && !string.IsNullOrEmpty(update.Text))
+                {
+                    if (!agentTextStarted)
+                    {
+                        console.Markup("[green]Agent:[/] ");
+                        agentTextStarted = true;
+                    }
+                    console.Write(new Text(update.Text));
+                }
+            }
+            console.WriteLine();
+            // The framework merges streamed content, including native approval requests.
+            var response = updates.ToAgentResponse();
+            if (ApprovalRequests(response).Length == 0 && store.Outcome == DemoOutcome.Pending)
+            {
+                store.Stop(store.CurrentIteration >= 4 ? DemoOutcome.ExecutionLimitReached : DemoOutcome.Error,
+                    store.CurrentIteration >= 4
+                        ? "The harness reached its four-invocation limit with evidence still pending."
+                        : "The agent returned before operational verification was complete.");
+            }
+            return response;
         }
         finally
         {
@@ -121,7 +156,7 @@ internal sealed class DemoApplication(
         }
     }
 
-    private async Task ShowProgressAsync(AgentSession session, AgentResponse response, CancellationToken cancellationToken)
+    private async Task ShowProgressAsync(AgentSession session, CancellationToken cancellationToken)
     {
         var history = agent.GetService<InMemoryChatHistoryProvider>()?.GetMessages(session);
         var contents = history?.SelectMany(message => message.Contents).ToList() ?? [];
@@ -139,9 +174,9 @@ internal sealed class DemoApplication(
             facts.AddRow("UTC window / fixed demo time",
                 $"{store.Change.WindowStart:HH:mm}–{store.Change.WindowEnd:HH:mm} / {store.Now:HH:mm}");
         }
-        if (store.PriorHealthWasRead)
+        if (store.PriorHealth is { } prior)
         {
-            facts.AddRow("GetServiceHealth (prior)", $"{store.Health.Status} · v{store.Health.Version}");
+            facts.AddRow("GetServiceHealth (prior)", $"{prior.Status} · v{prior.Version}");
         }
         console.Write(facts);
 
@@ -152,10 +187,6 @@ internal sealed class DemoApplication(
             progress.AddRow(new Text(todo.Title), new Text(todo.IsComplete ? "Done" : "Pending"));
         }
         console.Write(progress);
-        if (!string.IsNullOrWhiteSpace(response.Text))
-        {
-            console.Write(new Panel(new Text(response.Text)).Header("Agent message").BorderColor(Color.Grey));
-        }
     }
 
     private void ShowOutcome(string traceId)
@@ -166,14 +197,46 @@ internal sealed class DemoApplication(
         facts.AddRow("Deployment", store.Deployment is { } deployment
             ? $"{deployment.DeploymentId} · {deployment.Status}" : "None");
         facts.AddRow("Deployments started", store.Deployment is null ? "0" : "1");
-        facts.AddRow("Verification", "Pending — feature 02");
-        facts.AddRow("Trace ID (export in feature 03)", traceId);
+        facts.AddRow("Loop run / last iteration", $"{store.LoopRunNumber} / {store.CurrentIteration} of 4");
+        facts.AddRow("New deployment observations", store.ObservationCount.ToString());
+        facts.AddRow("Post-deployment health", store.PostDeploymentHealth is { } post
+            ? $"{post.Status} · v{post.Version}" : "Not yet observed");
+        facts.AddRow("Verification", store.Outcome == DemoOutcome.Completed ? "Verified" : "Incomplete");
+        facts.AddRow("Trace ID", traceId);
         console.Write(facts);
+        if (store.Outcome is DemoOutcome.ExecutionLimitReached or DemoOutcome.Cancelled or DemoOutcome.Error
+            && store.Deployment?.Status == "Running")
+        {
+            console.WriteLine("The harness stopped waiting; the deployment remains Running. It was not cancelled or rolled back.");
+        }
         if (store.StopReason is { } reason)
         {
             console.Write(new Text(reason, new Style(Color.Yellow)));
             console.WriteLine();
         }
+    }
+
+    private void ShowIteration()
+    {
+        agentTextStarted = false;
+        console.WriteLine();
+        console.Write(new Rule($"[cyan]Harness · run {store.LoopRunNumber} · iteration {store.CurrentIteration}/4[/]"));
+    }
+
+    private void ShowToolResult(string toolName, object? result)
+    {
+        agentTextStarted = false;
+        var evidence = result switch
+        {
+            ChangeRequest change => $"{change.ChangeId} · {change.Status} · UTC window {change.WindowStart:HH:mm}–{change.WindowEnd:HH:mm}, demo time {change.CurrentTime:HH:mm}",
+            ServiceHealth health => $"{health.Phase} · {health.Status} · v{health.Version}",
+            Deployment deployment => $"{deployment.DeploymentId} · {deployment.Status}",
+            DeploymentSnapshot snapshot => $"{snapshot.DeploymentId} · {snapshot.Status} · observation {snapshot.ObservationNumber} · {(snapshot.IsCached ? "cached" : "new")}",
+            _ => "Unavailable or denied"
+        };
+        console.WriteLine();
+        console.Write(new Text($"Harness · {toolName}: {evidence}", new Style(Color.Cyan1)));
+        console.WriteLine();
     }
 
     private static ToolApprovalRequestContent[] ApprovalRequests(AgentResponse response) =>

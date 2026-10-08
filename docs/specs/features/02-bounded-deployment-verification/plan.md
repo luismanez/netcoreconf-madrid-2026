@@ -4,6 +4,9 @@
 **Depends on:** [01-governed-production-change](../01-governed-production-change/plan.md).
 **Source:** [global spec](../../production-change-demo.md), §§4–6 and 9.
 **Work:** [todo.md](todo.md).
+**Status:** implementation complete and compiled. Presenter-owned E2E/rehearsal remains pending.
+
+**Current verification scope:** the combined implementation request requires code and compilation only. Any manual/E2E requirements below are presenter follow-up, not agent execution requirements. No automated testing is permitted.
 
 ## Feature outcome
 

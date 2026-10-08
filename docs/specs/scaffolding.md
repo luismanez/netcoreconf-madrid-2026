@@ -1,6 +1,6 @@
 # Demo scaffolding
 
-**Status:** the original scaffold is implemented and extended by [feature 01](features/01-governed-production-change/compatibility.md).
+**Status:** the original scaffold is implemented and extended by features 01–04. See the [current runbook](../demo-runbook.md) and [compilation evidence](features/04-conference-scenarios/rehearsal.md).
 
 ## Structure and decisions
 
@@ -21,7 +21,7 @@ DotNetEnv loads `.env` from the working directory with `LoadOptions.NoEnvVars()`
 
 `env.template` leaves every value empty. `.env` and `.env.*` are ignored by Git. Missing/invalid configuration exits 1 without printing values or raw exceptions. Help exits 0 without configuration; unsupported arguments exit 2 before model invocation.
 
-Authentication in F1 uses `AzureCliCredential`; sign in with `az login`. Optional telemetry settings are validated but export is deferred to F3.
+Authentication in F1 uses `AzureCliCredential`; sign in with `az login`. Telemetry settings configure the implemented gRPC OTLP exporter.
 
 ## Pinned scaffold dependencies
 
@@ -51,7 +51,7 @@ For help without configuration:
 dotnet run --project src/WftEngineering.Demo -- --help
 ```
 
-The current F1 presentation shows the Skill, external tool-read context, native todos, one human approval, and an operational summary. Approval starts only a simulated Running deployment; completion verification and telemetry export require later features.
+The presentation shows the Skill, tool-read facts, native todos, one human approval, streamed agent text, native iterations, and the operational summary/Trace ID. Approval starts a simulated Running deployment; the native loop verifies subsequent status/health/version. Traces are exported through local OTLP. Runtime/E2E checks remain with the presenter.
 
 ## Sources
 

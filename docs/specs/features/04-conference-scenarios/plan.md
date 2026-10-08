@@ -4,6 +4,9 @@
 **Depends on:** [03-observable-demo-session](../03-observable-demo-session/plan.md).
 **Source:** [global spec](../../production-change-demo.md), §§5–12.
 **Work:** [todo.md](todo.md).
+**Status:** implementation complete and compiled. Presenter-owned E2E/rehearsal remains pending.
+
+**Current verification scope:** the combined implementation request requires code and compilation only. Any manual/E2E requirements below are presenter follow-up, not agent execution requirements. No automated testing is permitted.
 
 ## Feature outcome
 
