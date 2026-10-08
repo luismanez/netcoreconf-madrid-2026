@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj" />
+  <Project Path="WftEngineering.Demo/WftEngineering.Demo.csproj" />
+</Solution>

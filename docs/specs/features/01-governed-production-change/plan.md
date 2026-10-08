@@ -13,8 +13,8 @@ Startup and the business flow through approval belong together because they form
 
 ## Scope
 
-- Create the .NET 10 project and xUnit project defined in the spec; pin dependencies and generate lock files. Verify the Harness/Skills/approval/loop APIs needed by subsequent features early.
-- Configure Foundry through `IChatClient`, environment variables, and an explicit development identity. Missing or invalid configuration terminates before work begins.
+- Reuse the existing .NET 10 console and xUnit projects under `src/`, with `.env`, typed settings, DI, and Spectre.Console. Add the agent dependencies and update lock files. Verify the Harness/Skills/approval/loop APIs needed by subsequent features early.
+- Configure Foundry through `IChatClient`, injected settings loaded from `.env`/environment variables, and an explicit development identity. Missing or invalid configuration terminates before work begins.
 - Compose `HarnessAgent` with brief general instructions, a local Skill source, `TodoProvider`, a session, the internal limit of 12, and unnecessary capabilities disabled. F2 enables the external loop.
 - Implement `RequestedChange`, CHG-1042, prior health, the fixed clock, simulated permission, and evidence in the store.
 - Expose `GetChangeRequest`, `GetServiceHealth`, and `DeployService`; add approval only to the last one. Do not expose `GetDeploymentStatus` yet.
@@ -64,7 +64,7 @@ With Foundry configured, observe the pause, accept or reject from the keyboard, 
 
 - Validate versions and signatures in the pinned package, not just examples from `main`. If incompatible, update the spec decision with evidence; do not recreate framework primitives.
 - Load Skills as read-only without a runner; reject unexpected approvals and do not use “always approve”.
-- Keep test helpers in `ProductionChangeTests.cs` initially. If they grow, they may be split within `tests/`; do not create production factories or interfaces to accommodate them.
+- Keep test helpers in `ProductionChangeTests.cs` initially. If they grow, they may be split within `src/WftEngineering.Demo.Tests/`; do not create production factories or interfaces to accommodate them.
 - Record evidence in this folder. Do not modify the general README or slides unless a link is essential; F4 completes their walkthrough.
 
 ## Single implementation prompt

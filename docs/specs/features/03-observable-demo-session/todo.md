@@ -17,7 +17,7 @@ Initial status: pending; requires F2 complete and F1 regression passing.
 - `src/WftEngineering.Demo/WftEngineering.Demo.csproj`, only if the OTLP reference is still missing
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`, only for gaps in operational coverage
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`, only for gaps in state events
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 - Generated if the reference changes: lock files for affected projects
 
 **Acceptance:**
@@ -29,7 +29,7 @@ Initial status: pending; requires F2 complete and F1 regression passing.
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Telemetry'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Telemetry'
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release
 ```
 
@@ -48,7 +48,7 @@ Use names containing `Telemetry`. Collect activities with an ActivityListener/te
 
 - `src/WftEngineering.Demo/Program.cs`
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`, if fact notifications are missing
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -59,8 +59,8 @@ Use names containing `Telemetry`. Collect activities with an ActivityListener/te
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~ConsoleOutput'
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Approval'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~ConsoleOutput'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Approval'
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
 ```
 
@@ -84,7 +84,7 @@ Use names containing `ConsoleOutput`. Check labels and critical facts with a scr
 **Planned files:**
 
 - `src/WftEngineering.Demo/Program.cs`, privacy/lifecycle adjustments only
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 - `docs/specs/features/03-observable-demo-session/telemetry-verification.md`, brief evidence during implementation
 
 **Acceptance:**
@@ -96,8 +96,8 @@ Use names containing `ConsoleOutput`. Check labels and critical facts with a scr
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Telemetry'
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Telemetry'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
 dotnet format src/WftEngineering.Demo/WftEngineering.Demo.csproj --verify-no-changes --no-restore
 ```
 

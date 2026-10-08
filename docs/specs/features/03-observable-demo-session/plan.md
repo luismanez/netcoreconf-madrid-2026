@@ -16,7 +16,7 @@ Operation instrumentation comes from F1/F2. This feature connects its export and
 - Configure the `TracerProvider`, demo resource, and OTLP in `Program.cs`, using source `WftEngineering.Demo` and a configurable local endpoint.
 - Use instrumentation included in HarnessAgent and dedicated activities; avoid wrapping the same client in OpenTelemetry again.
 - Ensure a `demo.run` root covers the human round trip, invocations, and outcome; include approval duration/decision and continuation events.
-- Refine streaming and console blocks for the Skill, verified data, tasks, approval arguments, iteration/observation, outcome, and TraceId.
+- Refine the existing Spectre.Console presentation and streaming for the Skill, verified data, tasks, approval arguments, iteration/observation, outcome, and TraceId; keep `IAnsiConsole` injected.
 - Read todos through the session provider without inspecting internal reasoning or reconstructing progress from agent phrases.
 - Check privacy, sanitized operational errors, final flush, and disposal on rejection/cancellation too.
 - Make the spec's local dashboard command usable, without an AppHost or additional collector.
@@ -69,7 +69,7 @@ With the image available and Foundry configured, run `happy`, accept manually, a
 - An exporter without a matching source delivers no data; test the name rather than assuming it.
 - Client OTel plus another wrapper can duplicate spans or content; use the harness pipeline and review the trace.
 - Streaming can mix model calls with agent invocations; iteration labels use the external counter.
-- Keep presentation helpers small in `Program.cs`. Extract a file only if it clearly improves readability; do not introduce a console library or framework.
+- Keep Spectre.Console presentation helpers small in `DemoApplication.cs`, with composition in `Program.cs`. Extract a file only if it clearly improves readability; do not add another console library or framework.
 
 ## Single implementation prompt
 

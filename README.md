@@ -17,6 +17,25 @@ This repository contains the materials, demos, and resources used during the ses
 
 ## 🚀 About this session
 
+### Demo quick start
+
+Install the .NET 10 SDK, then run these commands from the repository root:
+
+```bash
+cp env.template .env
+```
+
+Fill in `FOUNDRY_PROJECT_ENDPOINT` and `FOUNDRY_MODEL` in `.env`. The template leaves all values empty; optional OTLP settings have local defaults. Process environment variables override `.env`.
+
+```bash
+dotnet restore src/WftEngineering.slnx --locked-mode
+dotnet build src/WftEngineering.slnx -c Release --no-restore
+dotnet test src/WftEngineering.slnx -c Release --no-build --no-restore
+dotnet run --project src/WftEngineering.Demo -c Release --no-build
+```
+
+The current scaffold displays the startup screen and validates configuration. The agent workflow is planned in the [feature specifications](docs/specs/features/README.md). See [scaffolding setup and verification](docs/specs/scaffolding.md) for details.
+
 This repository is intended to accompany the live session and provide attendees with access to the code, examples, and resources discussed during the presentation.
 
 Feel free to explore the demos, reuse the examples, and open an issue if you find something that could be improved.

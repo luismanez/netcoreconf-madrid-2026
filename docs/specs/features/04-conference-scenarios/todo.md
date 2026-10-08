@@ -15,7 +15,7 @@ Initial status: pending; requires F3 complete and F1/F2 tests passing.
 
 - `src/WftEngineering.Demo/Program.cs`
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -26,7 +26,7 @@ Initial status: pending; requires F3 complete and F1/F2 tests passing.
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Scenario'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Scenario'
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
 dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-build -- --scenario invalid
 ```
@@ -58,9 +58,9 @@ The last command must reject the value without calling the model. Use tests name
 
 ```bash
 dotnet restore src/WftEngineering.Demo/WftEngineering.Demo.csproj --locked-mode
-dotnet restore tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj --locked-mode
+dotnet restore src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj --locked-mode
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --no-restore
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --no-restore
 ```
 
 Review commands, local links, and scenario names against code; check the image/dashboard if Docker is available. Do not change versions automatically to use “latest”. Document changes required by incompatibility before freezing the environment again.
@@ -69,7 +69,7 @@ Review commands, local links, and scenario names against code; check the image/d
 
 - [ ] Runbook commands match the actual project and contain no secrets or external business dependencies.
 - [ ] Scenarios and presentation fit the walkthrough without showing too many APIs.
-- [ ] The demo remains concentrated in its three main files, Skill, and two projects.
+- [ ] The demo remains concentrated in a small console project, Skill, and two projects under `src/`.
 
 ## F4-T3 — Verify the matrix and rehearse the session
 
@@ -82,7 +82,7 @@ Review commands, local links, and scenario names against code; check the image/d
 
 **Planned files:**
 
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 - `src/WftEngineering.Demo/Program.cs`, if integrated behavior fails
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`, if an invariant fails
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`, if a guard fails
@@ -97,7 +97,7 @@ Review commands, local links, and scenario names against code; check the image/d
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --no-restore
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --no-restore
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
 dotnet format src/WftEngineering.Demo/WftEngineering.Demo.csproj --verify-no-changes --no-restore
 ```

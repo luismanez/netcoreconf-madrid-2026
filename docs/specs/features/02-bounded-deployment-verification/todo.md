@@ -16,7 +16,7 @@ Initial status: pending; requires F1 implemented and verified.
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`
 - `src/WftEngineering.Demo/skills/production-change/SKILL.md`
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -27,7 +27,7 @@ Initial status: pending; requires F1 implemented and verified.
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~DeploymentState'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~DeploymentState'
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
 ```
 
@@ -47,7 +47,7 @@ Use names containing `DeploymentState`. Test repeated reads, reentry after appro
 - `src/WftEngineering.Demo/Program.cs`
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
 - `src/WftEngineering.Demo/skills/production-change/SKILL.md`
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -58,8 +58,8 @@ Use names containing `DeploymentState`. Test repeated reads, reentry after appro
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Loop'
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Approval'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Loop'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Approval'
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
 ```
 
@@ -85,7 +85,7 @@ Use names containing `Loop`. The test client must count agent invocations throug
 - `src/WftEngineering.Demo/Program.cs`
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -96,8 +96,8 @@ Use names containing `Loop`. The test client must count agent invocations throug
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Loop'
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Loop'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
 dotnet format src/WftEngineering.Demo/WftEngineering.Demo.csproj --verify-no-changes --no-restore
 ```
 

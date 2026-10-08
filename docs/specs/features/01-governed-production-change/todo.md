@@ -2,11 +2,13 @@
 
 Initial status: planning complete; implementation pending. Checkboxes represent execution evidence, not implicit approval.
 
+Scaffolding checkpoint (8 October 2026): project creation, `.env` loading, settings validation, DI, Spectre.Console, and nine configuration tests are complete. See [scaffolding evidence](../../scaffolding.md). F1-T1 remains pending until the Foundry client and pinned Harness/Skills/approval/loop APIs are verified; no business flow has been implemented.
+
 ## F1-T1 — Start the console and verify compatibility
 
 - [ ] Implemented and verified.
 
-**Description:** create the project and minimal client/harness configuration. Check the spec's API family and versions before establishing contracts on them. Incorrect configuration fails at startup; no real business systems are accessed.
+**Description:** extend the existing scaffold with minimal client/harness configuration. Check the spec's API family and versions before establishing contracts on them. Preserve injected settings and Spectre.Console output. Incorrect configuration fails at startup; no real business systems are accessed.
 
 **Dependencies:** none.
 **Scope:** M, 5 edited files; additional generated lock files.
@@ -16,10 +18,10 @@ Initial status: planning complete; implementation pending. Checkboxes represent 
 - `global.json`
 - `src/WftEngineering.Demo/WftEngineering.Demo.csproj`
 - `src/WftEngineering.Demo/Program.cs`
-- `tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj`
+- `src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj`
 - `docs/specs/features/01-governed-production-change/compatibility.md`, brief evidence written during implementation
 - Generated: `src/WftEngineering.Demo/packages.lock.json`
-- Generated: `tests/WftEngineering.Demo.Tests/packages.lock.json`
+- Generated: `src/WftEngineering.Demo.Tests/packages.lock.json`
 
 **Acceptance:**
 
@@ -32,12 +34,12 @@ Initial status: planning complete; implementation pending. Checkboxes represent 
 ```bash
 dotnet --info
 dotnet restore src/WftEngineering.Demo/WftEngineering.Demo.csproj --use-lock-file
-dotnet restore tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj --use-lock-file
+dotnet restore src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj --use-lock-file
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
-env -u FOUNDRY_PROJECT_ENDPOINT -u FOUNDRY_MODEL dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-build -- --scenario happy
+FOUNDRY_PROJECT_ENDPOINT='' FOUNDRY_MODEL='' dotnet run --project src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-build -- --scenario happy
 ```
 
-The last command must terminate with a configuration error without invoking the model. Record the SDK, restored versions, and checked signatures in `compatibility.md`; native behavior tests are added in T2/T3 and F2.
+The last command explicitly overrides `.env` with empty required values and must terminate with a configuration error without invoking the model once F1 supports the happy scenario. Record the SDK, restored versions, and checked signatures in `compatibility.md`; native behavior tests are added in T2/T3 and F2.
 
 ## F1-T2 — Validate the change with a Skill, tools, and external state
 
@@ -53,7 +55,7 @@ The last command must terminate with a configuration error without invoking the 
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`
 - `src/WftEngineering.Demo/skills/production-change/SKILL.md`
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 - `src/WftEngineering.Demo/Program.cs`
 
 **Acceptance:**
@@ -65,8 +67,8 @@ The last command must terminate with a configuration error without invoking the 
 **Verification:**
 
 ```bash
-dotnet restore tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj --use-lock-file
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Validation'
+dotnet restore src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj --use-lock-file
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Validation'
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release
 ```
 
@@ -92,7 +94,7 @@ Use test names containing `Validation`. The scripted client must inspect context
 - `src/WftEngineering.Demo/Program.cs`
 - `src/WftEngineering.Demo/Tools/DeploymentTools.cs`
 - `src/WftEngineering.Demo/Demo/DemoDeploymentStore.cs`
-- `tests/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
+- `src/WftEngineering.Demo.Tests/ProductionChangeTests.cs`
 
 **Acceptance:**
 
@@ -103,8 +105,8 @@ Use test names containing `Validation`. The scripted client must inspect context
 **Verification:**
 
 ```bash
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Approval'
-dotnet test tests/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release --filter 'FullyQualifiedName~Approval'
+dotnet test src/WftEngineering.Demo.Tests/WftEngineering.Demo.Tests.csproj -c Release
 dotnet build src/WftEngineering.Demo/WftEngineering.Demo.csproj -c Release --no-restore
 dotnet format src/WftEngineering.Demo/WftEngineering.Demo.csproj --verify-no-changes --no-restore
 ```

@@ -4,6 +4,8 @@ Functional source of truth: [demo spec](../production-change-demo.md). This plan
 
 Feature plans and task lists live in `docs/specs/features/<feature>/`. There is no duplicate plan in `tasks/`. Each `todo.md` is the sole work checklist for its feature. Write all specification and implementation documentation in English.
 
+[Scaffolding](../scaffolding.md) is implemented: .NET 10, `.env`, typed settings, built-in DI, Spectre.Console, and configuration tests. Reuse it when implementing F1. The four agent features remain pending. All code projects live under `src/`.
+
 ## Features and implementation order
 
 | Order / stable ID | Outcome on completion | Dependency | Documents |
@@ -26,7 +28,7 @@ Each feature groups a demonstrable capability, with three internal tasks and one
 
 Copy the prompt from its `plan.md`. The agent must read the global spec, the feature plan, and its `todo.md`, check dependencies, and complete the implementation with tests and documentation of the outcome. It must not implement the next feature, reorganize the architecture, or create sub-agents.
 
-The planning request authorizes preparation of these documents. Implementation begins with a subsequent request to implement a feature. Feature folders contain documentation; code belongs in `src/` and `tests/`, as specified in the spec.
+The planning request authorizes preparation of these documents. Implementation begins with a subsequent request to implement a feature. Feature folders contain documentation; code belongs in `src/`, including the test project, as specified in the spec.
 
 ## Shared contracts
 
@@ -38,7 +40,7 @@ The planning request authorizes preparation of these documents. Implementation b
 - **Loop:** a single `DelegateLoopEvaluator`; `MaxIterations = 4` per loop run, `MaximumIterationsPerRequest = 12` for function calling, and no autonomous restart when the budget is exhausted.
 - **Instrumentation:** F1 and F2 add activities/events as each operation is introduced. F3 connects the exporter and viewer and verifies the complete session. The shared source is `WftEngineering.Demo`; sensitive content capture is disabled from the start.
 
-Keep composition visible in `Program.cs`, tool implementation in `DeploymentTools.cs`, and data in `DemoDeploymentStore.cs`. Copy the Skill to the output directory and resolve it from `AppContext.BaseDirectory`. Keep web, file memory, modes, and compaction disabled; do not enable scripts, shell, MCP, CodeAct, file access, or background agents.
+Keep DI and harness composition visible in `Program.cs`, typed configuration in `DemoSettings.cs`, and the Spectre.Console presentation/session flow in `DemoApplication.cs`. Future tool implementation belongs in `DeploymentTools.cs` and data in `DemoDeploymentStore.cs`. Copy the Skill to the output directory and resolve it from `AppContext.BaseDirectory`. Keep web, file memory, modes, and compaction disabled; do not enable scripts, shell, MCP, CodeAct, file access, or background agents.
 
 ## Spec coverage
 
@@ -74,5 +76,5 @@ Parallel implementation is not planned: all features modify `Program.cs` and sha
 | Approval becomes unsafe when looping is introduced | F2 repeats native rejection, binding, and guard tests |
 | Polling is consumed within a single run | F2 tests cached snapshots and invocation counts with a scripted client |
 | Todos or responses suggest success without evidence | F1 separates state sources; F2 tests premature completion |
-| Console or tests introduce too much architecture | Review after each feature: three main production files, without additional libraries or a TUI |
+| Console or tests introduce too much architecture | Review after each feature: a small console project with concrete services, without extra application layers or a TUI |
 | Live dependencies are unavailable during rehearsal | F4 records pending checks and prepares a backup labeled as recorded |
