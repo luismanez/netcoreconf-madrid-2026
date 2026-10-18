@@ -1,0 +1,37 @@
+Use case: productivity-visual. Edit the reference image into the next slide of the same professional .NET conference code walkthrough. Treat the reference as a STYLE TEMPLATE ONLY. Replace every title, subtitle, comment and code line. Preserve the reference's minimalist deep navy background, white title alignment, muted subtitle, single large charcoal editor surface, subtle rounded border, soft shadow, small editor dots and clear monospaced font. Landscape 16:9.
+
+Exact new title: "Context Engineering"
+Exact new subtitle: "Skills on demand"
+
+Purpose: explain how Microsoft Agent Framework discovers local Skills and loads the selected procedure on demand. Show two clearly distinguished excerpts STACKED vertically inside ONE unified editor surface: a short C# configuration above and an abridged YAML/Markdown Skill file below. Small muted labels "Program.cs" and "SKILL.md (abridged)" identify each excerpt. The lower excerpt is a Skill document, not C#; do not place it in quotation marks. Use restrained spacing or a single subtle hairline between excerpts. No separate cards, diagram, icons, logos, arrows, badges, footer, line numbers, or prose outside the editor and the title/subtitle.
+
+Legibility: large crisp monospaced text, suitable for a projector. Keep all text comfortably within the editor. Match the font size and clarity of the reference, never tiny. C# keywords blue/purple, types cyan, properties and punctuation off-white, string "skills" warm orange, comments green. YAML keys cyan, values off-white or orange, Markdown heading off-white and backticked tool identifiers warm orange. Comments must remain clearly readable. All content in English.
+
+Exact upper excerpt, under label "Program.cs":
+// Discover available Skills from local files.
+AgentSkillsSource = new AgentFileSkillsSource(
+    Path.Combine(AppContext.BaseDirectory, "skills"))
+
+// Metadata guides selection.
+// load_skill retrieves the full procedure when needed.
+
+Exact lower excerpt, under label "SKILL.md (abridged)":
+---
+name: production-change
+description: >
+  Validate an enterprise production change, check service health,
+  and verify a deployment with explicit human approval.
+  Use for production deployment requests.
+---
+
+# Production change procedure
+
+2. Call `GetChangeRequest`.
+   Check approval, target and maintenance window.
+3. Call `GetServiceHealth`. Require Healthy.
+6. Propose `DeployService`.
+   Wait for native human approval.
+
+Content accuracy: preserve all exact identifiers, punctuation and original step numbers 2, 3, 6. These are selected shortened steps, not a new full procedure. Do not add other steps, invented APIs, tool results or claims. Keep "load_skill" in lowercase with its underscore. In C# preserve AgentSkillsSource, AgentFileSkillsSource, Path.Combine and AppContext.BaseDirectory exactly. Render triple hyphens correctly as YAML frontmatter boundaries. Do not retain any Prompt Engineering or HarnessInstructions content from the reference.
+
+The result must look like the third image in a coherent, restrained Carbon-style developer slide series.

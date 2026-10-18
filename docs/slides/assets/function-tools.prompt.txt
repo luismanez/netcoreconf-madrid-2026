@@ -1,0 +1,33 @@
+Use case: productivity-visual. Create the next image in this professional .NET conference code-slide series by editing the supplied reference. Reference role: STYLE AND LAYOUT TEMPLATE ONLY. Replace all text and snippets with the exact new content below. Keep the deep navy background, large white upper-left title, muted subtitle, single large charcoal editor panel, subtle rounded border, soft shadow, small colored editor dots, large sharp monospaced typography, and restrained C# syntax highlighting. Landscape 16:9. Minimal, professional Carbon/VS Code Dark+ aesthetic, visually consistent with the reference.
+
+Exact title: "Function tools"
+Exact subtitle: "C# methods exposed to the model"
+
+Within ONE unified code panel show two vertically stacked C# snippets with a discreet horizontal separator. Upper small muted filename label: "DeploymentTools.cs (abridged)". Lower small muted filename label: "Program.cs". Both are C#, not prose. No separate cards, arrows, diagrams, logos, icons, badges, footer, line numbers, browser chrome or extraneous annotations. Preserve comfortable internal margins and bottom padding. Keep text large enough to read on a conference projector; prioritize code legibility and exact text over decoration.
+
+Upper exact snippet:
+// Describe when the model should use this tool.
+[Description("Read current service health and version.")]
+public ServiceHealth? GetServiceHealth(
+    string service,
+    string environment,
+    CancellationToken cancellationToken = default)
+{
+    // Cancellation, tracing and notifications omitted.
+    return store.ReadHealth(service, environment);
+}
+
+Lower exact snippet:
+// Create function schemas and register callable tools.
+ChatOptions = new ChatOptions
+{
+    Tools =
+    [
+        AIFunctionFactory.Create(tools.GetChangeRequest),
+        AIFunctionFactory.Create(tools.GetServiceHealth)
+    ]
+}
+
+Typography and syntax coloring: comments readable muted green; keywords public, string, default, return and new blue/purple; types Description, ServiceHealth, CancellationToken, ChatOptions, AIFunctionFactory cyan; method names pale yellow; strings warm orange; parameter names and punctuation off-white. All code in English, perfectly straight, aligned and indented. Exact spelling matters: GetServiceHealth, GetChangeRequest, ReadHealth, AIFunctionFactory.Create, CancellationToken, ChatOptions. Preserve the nullable question mark after ServiceHealth and every parenthesis, bracket and comma. This is an explicitly abridged source excerpt; do not invent extra implementation. Do not retain any Skill, YAML, Context Engineering, load_skill or other content from the reference.
+
+The image explains two steps: an ordinary typed C# method supplies the tool description, inputs and return value; AIFunctionFactory exposes it to the agent through ChatOptions.Tools. The two provided comments are sufficient explanation; add no further text.
