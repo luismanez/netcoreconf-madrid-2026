@@ -19,6 +19,7 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
     public Deployment? Deployment { get; private set; }
     public DemoOutcome Outcome { get; private set; } = DemoOutcome.Pending;
     public string? StopReason { get; private set; }
+    public string? StopReasonCode { get; private set; }
     public int LoopRunNumber { get; private set; }
     public int CurrentIteration { get; private set; }
     public int ObservationCount { get; private set; }
@@ -68,14 +69,25 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
         }
         if (changeId != Change.ChangeId)
         {
-            Stop(DemoOutcome.ValidationFailed, "Change not found.");
+            Stop(DemoOutcome.ValidationFailed, "Change not found.", "change_not_found");
             return null;
         }
         ChangeWasRead = true;
-        if (Change.Status != "Approved" || Now < Change.WindowStart || Now > Change.WindowEnd
-            || Requested != new RequestedChange(Change.ChangeId, Change.Service, Change.Version, Change.Environment))
+        if (Change.Status != "Approved")
         {
-            Stop(DemoOutcome.ValidationFailed, "Change approval, target, or window is invalid.");
+            Stop(DemoOutcome.ValidationFailed, "Change is not approved.", "change_not_approved");
+        }
+        else if (Now < Change.WindowStart)
+        {
+            Stop(DemoOutcome.ValidationFailed, "The maintenance window has not opened.", "maintenance_window_not_open");
+        }
+        else if (Now > Change.WindowEnd)
+        {
+            Stop(DemoOutcome.ValidationFailed, "The maintenance window has closed.", "maintenance_window_closed");
+        }
+        else if (Requested != new RequestedChange(Change.ChangeId, Change.Service, Change.Version, Change.Environment))
+        {
+            Stop(DemoOutcome.ValidationFailed, "Change does not match the requested target.", "change_target_mismatch");
         }
         return Change;
     }
@@ -88,14 +100,14 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
         }
         if (service != Health.Service || environment != Health.Environment)
         {
-            Stop(DemoOutcome.ValidationFailed, "Service health does not match the requested target.");
+            Stop(DemoOutcome.ValidationFailed, "Service health does not match the requested target.", "health_target_mismatch");
             return null;
         }
         if (Deployment is null)
         {
             if (Health.Status != "Healthy")
             {
-                Stop(DemoOutcome.ValidationFailed, "Prior service health is unknown or unhealthy.");
+                Stop(DemoOutcome.ValidationFailed, "Prior service health is unknown or unhealthy.", "prior_health_unhealthy");
                 return null;
             }
             return PriorHealth = Health;
@@ -110,7 +122,8 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
         Stop(verified ? DemoOutcome.Completed : DemoOutcome.PostHealthFailed,
             verified
                 ? "Deployment and subsequent health/version are verified."
-                : "Post-deployment health or version does not match the expected result.");
+                : "Post-deployment health or version does not match the expected result.",
+            verified ? "deployment_verified" : "post_deployment_verification_failed");
         return PostDeploymentHealth;
     }
 
@@ -145,7 +158,8 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
         var denial = DeploymentDenial(target);
         if (denial is not null || ApprovedTarget != target)
         {
-            Stop(DemoOutcome.ValidationFailed, denial ?? "Explicit human approval is required.");
+            Stop(DemoOutcome.ValidationFailed, denial ?? "Explicit human approval is required.",
+                denial is null ? "human_approval_required" : "deployment_denied");
             return null;
         }
         // Repeated identical calls return the existing operation, never a second deployment.
@@ -160,7 +174,8 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
         }
         if (Deployment is null || deploymentId != Deployment.DeploymentId || CurrentIteration < 1)
         {
-            Stop(DemoOutcome.ValidationFailed, "Deployment ID is unknown or no agent iteration is active.");
+            Stop(DemoOutcome.ValidationFailed, "Deployment ID is unknown or no agent iteration is active.",
+                "invalid_deployment_observation");
             return null;
         }
         if (Snapshot is not null)
@@ -177,7 +192,8 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
                 Deployment = Deployment with { Status = Scenario == DemoScenario.DeploymentFailed ? "Failed" : "Succeeded" };
                 if (Deployment.Status == "Failed")
                 {
-                    Stop(DemoOutcome.DeploymentFailed, "The simulated deployment failed. No rollback was attempted.");
+                    Stop(DemoOutcome.DeploymentFailed, "The simulated deployment failed. No rollback was attempted.",
+                        "deployment_failed");
                 }
                 else
                 {
@@ -193,12 +209,13 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
         return Snapshot;
     }
 
-    public void Stop(DemoOutcome outcome, string reason)
+    public void Stop(DemoOutcome outcome, string reason, string reasonCode)
     {
         if (Outcome == DemoOutcome.Pending)
         {
             Outcome = outcome;
             StopReason = reason;
+            StopReasonCode = reasonCode;
         }
     }
 }

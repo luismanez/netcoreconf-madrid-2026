@@ -118,6 +118,7 @@ try
                 evaluation?.SetTag("loop.iteration", context.Iteration);
                 var feedback = store.ContinuationFeedback();
                 evaluation?.SetTag("loop.continue", feedback is not null);
+                evaluation?.SetTag("demo.stop_reason", store.StopReasonCode);
                 if (feedback is null)
                 {
                     return ValueTask.FromResult(LoopEvaluation.Stop());
@@ -136,11 +137,11 @@ try
         });
         if (agent.GetService<OpenTelemetryAgent>() is { } telemetry)
         {
-            telemetry.EnableSensitiveData = false;
+            telemetry.EnableSensitiveData = settings.CaptureContent;
         }
         if (agent.GetService<OpenTelemetryChatClient>() is { } modelTelemetry)
         {
-            modelTelemetry.EnableSensitiveData = false;
+            modelTelemetry.EnableSensitiveData = settings.CaptureContent;
         }
         if (agent.GetService<FunctionInvokingChatClient>() is { } invocations)
         {

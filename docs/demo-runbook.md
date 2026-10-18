@@ -20,6 +20,8 @@ dotnet build src/WftEngineering.slnx -c Release --no-restore
 
 The template contains empty values. Process variables override `.env`. Optional OTLP variables default to `http://localhost:4317` and `grpc`; only gRPC is supported. Keep credentials and `.env` out of Git. Azure CLI identity authenticates model access; `OperatorCanDeploy` separately simulates deployment authorization inside the fake.
 
+For the talk, set `DEMO_CAPTURE_CONTENT=true` in `.env` to include messages and tool content in telemetry. Empty or missing defaults to `false`; only `true` and `false` are accepted. This setting controls `EnableSensitiveData` on both the native agent and chat-client instrumentation, overriding their environment-based defaults.
+
 Start the proposed pinned viewer image before rehearsal:
 
 ```bash
@@ -97,11 +99,32 @@ Use the graph in the [spec](specs/production-change-demo.md) to explain branches
 
 Find the final Trace ID in Aspire under service `WftEngineering.Demo`. Expected coverage includes model/agent spans from the harness, four dedicated tool activities, approval duration/decision, loop evaluation, resumption, and final operational tags. The fourth invocation may end at the limit without another evaluator call; use root outcome/counters too. Exact automatic span names/nesting depend on the pinned framework.
 
-Sensitive capture is explicitly disabled. No transcript, full tool payloads, or raw exceptions are intentionally exported; `SafeErrorProcessor` clears error status descriptions before export. Inspect actual delivery, correlation, and privacy during your E2E checks. A displayed Trace ID does not prove successful delivery.
+Content capture is disabled by default. To inspect prompts and responses for this fictional demo, enable it before launching a new run:
 
-Exporter request/processor timeouts are 1 second; shutdown attempts a 2-second flush and a 2-second shutdown. Export warnings do not change the business outcome. If traces are missing, check the container, authenticated viewer, configured endpoint, and matching source; do not enable sensitive capture to diagnose it.
+```dotenv
+DEMO_CAPTURE_CONTENT=true
+```
 
-If startup fails, check required variables, `az login`, project access, and model compatibility. Agent execution failures report the exception type and HTTP status when available, without raw exception messages or response bodies. HTTP 400 indicates a rejected request/parameter, 401/403 authentication or inference authorization, 404 endpoint/deployment lookup, 429 quota/rate limits, and 5xx a remote service failure. A successful Azure CLI login does not itself prove inference permissions. `FOUNDRY_MODEL` must match the deployment name exactly. For a non-HTTP failure or details beyond the sanitized status, break at the caught exception in DemoApplication.cs using your debugger. If an invocation fails or times out, show the store's incomplete outcome and start a fresh run only after resolving the cause. Do not raise limits or bypass approval to make the demo appear successful.
+Open a `chat <model>` span in Aspire and use its GenAI viewer to inspect recorded instructions, input messages, model responses, and tool calls/results. The returned Skill content and todo payloads can help explain how context grows. Agent and chat spans may contain overlapping content; they show different instrumentation boundaries. The flag does not change the model request or the operational guards. Existing traces are not updated when it changes.
+
+With capture enabled, message/tool content and potentially detailed error telemetry are exported to the configured OTLP destination. Use fictional demo data. `SafeErrorProcessor` still clears error status descriptions; it does not redact message payloads or other telemetry fields. Console error diagnostics remain sanitized. With capture disabled, native instrumentation omits raw messages and tool payloads. See [MAF observability](https://learn.microsoft.com/en-us/agent-framework/agents/observability) and the [Aspire GenAI viewer](https://aspire.dev/dashboard/explore/#genai-telemetry-visualization).
+
+The root `demo.run` span always records `demo.stop_reason` when an operational outcome is reached, independently of content capture. Codes are fixed application values, not model text or exception messages. The first terminal reason is preserved. The tool that reaches that outcome and subsequent `loop.evaluate` spans also include it when available:
+
+| Scenario / decision | Expected `demo.stop_reason` |
+|---|---|
+| `validation-failed` | `maintenance_window_closed` |
+| `happy` + `APPROVE` | `deployment_verified` |
+| `happy` + `REJECT` | `operator_rejected` |
+| `stuck` + `APPROVE` | `iteration_limit_reached` |
+| `deployment-failed` + `APPROVE` | `deployment_failed` |
+| `post-health-failed` + `APPROVE` | `post_deployment_verification_failed` |
+
+Other guards and execution failures have their own codes, such as `change_not_found`, `human_approval_required`, `operator_cancelled`, and `agent_execution_failed`. Read `demo.outcome` with the reason: the root span is still marked Error for any outcome other than Completed, including expected validation failures. A displayed Trace ID does not prove successful delivery.
+
+Exporter request/processor timeouts are 1 second; shutdown attempts a 2-second flush and a 2-second shutdown. Export warnings do not change the business outcome. If traces are missing, check the container, authenticated viewer, configured endpoint, and matching source; content capture is unnecessary for diagnosing delivery.
+
+If startup fails, check required variables, `az login`, project access, and model compatibility. Console diagnostics report the exception type and HTTP status when available, without raw exception messages or response bodies. HTTP 400 indicates a rejected request/parameter, 401/403 authentication or inference authorization, 404 endpoint/deployment lookup, 429 quota/rate limits, and 5xx a remote service failure. A successful Azure CLI login does not itself prove inference permissions. `FOUNDRY_MODEL` must match the deployment name exactly. For a non-HTTP failure or details beyond the sanitized status, break at the caught exception in DemoApplication.cs using your debugger. If an invocation fails or times out, show the store's incomplete outcome and start a fresh run only after resolving the cause. Do not raise limits or bypass approval to make the demo appear successful.
 
 For AuthenticationFailedException on macOS, check CLI resolution rather than changing the model. AzureCliCredential invokes az through /bin/sh; an old pipx launcher earlier in PATH can reference a deleted Python interpreter even while interactive zsh finds a working Homebrew installation. Diagnose with /bin/sh rather than the interactive shell. On Apple Silicon with Homebrew installed under /opt/homebrew, temporarily prioritize that installation in the same terminal used to run the app:
 
@@ -119,3 +142,8 @@ Prepare a rehearsal recording or exported trace yourself as a backup, clearly la
 ## Presenter-owned rehearsal record
 
 Record E2E results in [rehearsal.md](specs/features/04-conference-scenarios/rehearsal.md): model/deployment, SDK/packages/image digest, scenario/decision, outcome, counters, side effects, active duration, Trace ID and privacy observations. Aim for five consecutive happy runs below 90 seconds of active work, plus reject and stuck. Do not copy conversations or credentials into the record. Conference readiness remains pending until you complete these checks.
+
+### Telemetry update verification — 18 October 2026
+
+- Completed: `dotnet build src/WftEngineering.slnx -c Release --no-restore --nologo` succeeded with zero warnings/errors. Diff review confirmed empty template values, validated opt-in configuration, fixed stop-reason codes, and preservation of the first terminal outcome. No tests or Foundry calls were run.
+- Pending for the presenter: run `validation-failed` with content capture enabled, inspect the GenAI content, and find `maintenance_window_closed` on `demo.run`, `tool.GetChangeRequest`, and `loop.evaluate`. Repeat with capture disabled to confirm raw content is omitted while the stop reason remains. Check the remaining scenario codes against the table above.

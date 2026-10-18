@@ -45,7 +45,8 @@ internal sealed class DemoApplication(
                 var approved = false;
                 if (denial is not null)
                 {
-                    store.Stop(DemoOutcome.ValidationFailed, denial);
+                    store.Stop(DemoOutcome.ValidationFailed, denial,
+                        target is null ? "invalid_approval_request" : "deployment_denied");
                     console.Write(new Text(denial, new Style(Color.Red)));
                     console.WriteLine();
                 }
@@ -68,7 +69,7 @@ internal sealed class DemoApplication(
                     }
                     else
                     {
-                        store.Stop(DemoOutcome.Rejected, "The operator did not approve deployment.");
+                        store.Stop(DemoOutcome.Rejected, "The operator did not approve deployment.", "operator_rejected");
                     }
                 }
 
@@ -80,18 +81,20 @@ internal sealed class DemoApplication(
                 await ShowProgressAsync(session, cancellationToken);
                 if (ApprovalRequests(response).Length > 0)
                 {
-                    store.Stop(DemoOutcome.ValidationFailed, "Only one deployment approval round is allowed.");
+                    store.Stop(DemoOutcome.ValidationFailed, "Only one deployment approval round is allowed.",
+                        "repeated_approval_request");
                 }
             }
         }
         catch (OperationCanceledException)
         {
             store.Stop(DemoOutcome.Cancelled, cancellationToken.IsCancellationRequested
-                ? "The operator cancelled the run." : "The 120-second active execution budget expired.");
+                ? "The operator cancelled the run." : "The 120-second active execution budget expired.",
+                cancellationToken.IsCancellationRequested ? "operator_cancelled" : "active_budget_expired");
         }
         catch (Exception error)
         {
-            store.Stop(DemoOutcome.Error, DescribeFailure(error));
+            store.Stop(DemoOutcome.Error, DescribeFailure(error), "agent_execution_failed");
         }
         finally
         {
@@ -100,6 +103,7 @@ internal sealed class DemoApplication(
         }
 
         run.SetTag("demo.outcome", store.Outcome.ToString());
+        run.SetTag("demo.stop_reason", store.StopReasonCode);
         run.SetTag("demo.active_ms", activeTime.ElapsedMilliseconds);
         run.SetTag("deployment.id", store.Deployment?.DeploymentId);
         run.SetTag("deployment.status", store.Deployment?.Status);
@@ -149,7 +153,8 @@ internal sealed class DemoApplication(
                 store.Stop(store.CurrentIteration >= 4 ? DemoOutcome.ExecutionLimitReached : DemoOutcome.Error,
                     store.CurrentIteration >= 4
                         ? "The harness reached its four-invocation limit with evidence still pending."
-                        : "The agent returned before operational verification was complete.");
+                        : "The agent returned before operational verification was complete.",
+                    store.CurrentIteration >= 4 ? "iteration_limit_reached" : "verification_incomplete");
             }
             return response;
         }
