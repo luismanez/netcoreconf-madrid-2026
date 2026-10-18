@@ -220,22 +220,54 @@ internal sealed class DemoDeploymentStore(DemoScenario scenario)
     }
 }
 
-internal sealed record RequestedChange(string ChangeId, string Service, string Version, string Environment)
+internal sealed record RequestedChange(string ChangeId,
+                                       string Service,
+                                       string Version,
+                                       string Environment)
 {
     public string ToPrompt() => $"Deploy {Service} v{Version} to {Environment} using change {ChangeId}.";
 }
 
-internal sealed record ChangeRequest(
-    string ChangeId, string Service, string Version, string Environment, string Status,
-    DateTimeOffset WindowStart, DateTimeOffset WindowEnd, DateTimeOffset CurrentTime);
+internal sealed record ChangeRequest(string ChangeId,
+                                     string Service,
+                                     string Version,
+                                     string Environment,
+                                     string Status,
+                                     DateTimeOffset WindowStart,
+                                     DateTimeOffset WindowEnd,
+                                     DateTimeOffset CurrentTime);
 
-internal sealed record ServiceHealth(string Service, string Environment, string Status, string Version, string Phase);
-internal sealed record Deployment(string DeploymentId, RequestedChange Target, string Status);
+internal sealed record ServiceHealth(string Service,
+                                     string Environment,
+                                     string Status,
+                                     string Version,
+                                     string Phase);
+
+internal sealed record Deployment(string DeploymentId,
+                                  RequestedChange Target,
+                                  string Status);
+
 internal sealed record DeploymentSnapshot(
     string DeploymentId, string Status, int ObservationNumber, int LoopRunNumber, int Iteration, bool IsCached);
-internal enum DemoScenario { Happy, Stuck, ValidationFailed, DeploymentFailed, PostHealthFailed }
+
+internal enum DemoScenario
+{
+    Happy,
+    Stuck,
+    ValidationFailed,
+    DeploymentFailed,
+    PostHealthFailed
+}
+
 internal enum DemoOutcome
 {
-    Pending, ValidationFailed, Rejected, DeploymentFailed, PostHealthFailed,
-    Completed, ExecutionLimitReached, Cancelled, Error
+    Pending,
+    ValidationFailed,
+    Rejected,
+    DeploymentFailed,
+    PostHealthFailed,
+    Completed,
+    ExecutionLimitReached,
+    Cancelled,
+    Error
 }
