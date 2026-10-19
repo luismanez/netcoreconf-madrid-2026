@@ -1,0 +1,65 @@
+Use case: productivity-visual.
+Create ONE finished, professional conference slide image in English, ready to place into PowerPoint, widescreen 16:9, ideally 3840 x 2160. This is a NEW slide using the supplied reference ONLY for visual style, typography, palette and editor treatment. Replace ALL old C# source code and old subtitle with the new content below.
+
+STYLE REFERENCE: match the earlier demo slides: deep navy background (#07111f), crisp large white title at upper left, muted periwinkle subtitle, ONE large charcoal editor-like surface below with thin restrained border, subtle corner rounding and soft shadow, three tiny red/yellow/green editor dots. Minimalist, polished Carbon / VS Code Dark+ aesthetic. Monospaced text in the editor, white plus restrained blue, cyan, yellow, orange and green syntax colors. No photography, icons, mascots, logos, watermark, decorative background art, gradients that reduce contrast, or collection of separate dashboard cards. Keep all text large and legible when projected. Use generous margins and precise alignment.
+
+EXACT TITLE:
+Graph Engineering
+
+EXACT SUBTITLE:
+The skill guides the flow; code enforces the rules
+
+COMPOSITION:
+Within ONE unified editor-like surface, use a left text area (roughly 47% of the body) and a right flowchart area (roughly 53%), separated only by a subtle vertical divider. Below those two areas, inside the same surface, place a compact two-line responsibility legend separated by a subtle horizontal rule. No text, diagram or arrow may collide with that legend. All content must fit fully inside the image without clipping.
+
+LEFT AREA:
+Small muted source label exactly:
+production-change / SKILL.md (summary)
+
+Display the following Markdown summary exactly, in large crisp monospaced type. Keep each numbered step together, wrapping with hanging indentation if needed. Use blue/purple for numbered markers, cyan or pale yellow for the Markdown heading, off-white for sentences, and warm orange or cyan for the state names Running and Succeeded. The final stop instruction may use readable green. This is a clearly labeled SUMMARY of the real skill, not a literal source-code excerpt.
+
+# Production change procedure
+
+1. Validate the change and prior health.
+2. Require human approval before deployment.
+3. Start deployment once.
+4. If Running, return control to the harness.
+5. After Succeeded, verify health and version.
+
+Stop on invalid evidence or rejected approval.
+
+RIGHT AREA:
+Small muted heading exactly:
+Conceptual flow
+
+Draw a clean, accurate flowchart using understated blue/cyan outlines and dark charcoal fills, with large white labels and thin orthogonal arrows. Make it simpler and easier to follow than the reference's long code snippets. Use a main vertical success path and a shared Stop terminal to the right; use a short loop to the left of the status decision. Leave adequate width for labels and routing. Avoid crossing lines, ambiguous arrowheads or arrow routes through text.
+
+Main path, in this exact order:
+1. A rounded rectangle labeled "Validate change & health".
+2. A diamond labeled "Human approval?".
+3. A rounded rectangle labeled "Start deployment".
+4. A diamond labeled "Deployment status?".
+5. A diamond labeled "Health & version valid?".
+6. A green-accented rounded terminal labeled "Completed".
+
+Arrows and branches, with readable labels near each arrow:
+- Validate change & health -> Human approval?, label "Valid".
+- Validate change & health -> shared red-accented Stop terminal, label "Invalid".
+- Human approval? -> Start deployment, label "Approved".
+- Human approval? -> Stop, label "Rejected".
+- Start deployment -> Deployment status?, no extra label.
+- Deployment status? -> itself via a clearly separated loop, label "Running: next iteration". The arrow must re-enter Deployment status?, NOT Start deployment: no redeployment.
+- Deployment status? -> Stop, label "Failed".
+- Deployment status? -> Health & version valid?, label "Succeeded".
+- Health & version valid? -> Completed, label "Yes".
+- Health & version valid? -> Stop, label "No".
+
+Keep the common Stop terminal visually separate and all rejection/failure routes unambiguous. Shared routing is fine if clear. Completed must be reachable ONLY after "Health & version valid?" -> Yes. Approval must come BEFORE Start deployment. Running must NOT mean success. This diagram is conceptual; the application does not use an explicit MAF Workflow graph. Do not add WorkflowBuilder APIs, workflow executors, rollback, other agents, or any new functionality.
+
+BOTTOM RESPONSIBILITY LEGEND, exact wording in two clean aligned lines:
+MAF Harness: Skills · tools · approval protocol · bounded loop
+Application code: State · validation · authorization · verified outcomes
+
+Use cyan/pale blue for the lead labels "MAF Harness:" and "Application code:", and off-white for the descriptions. Keep the two lines readable, not tiny footnotes. No extra prose beyond the exact title, subtitle, source label, summary, diagram labels and these two responsibility lines.
+
+Priorities: accurate readable text; correct clear arrows; visual continuity with reference; minimal professional composition. This slide should make it immediately clear that the skill describes the intended procedure, the harness supplies execution capabilities, and application code enforces the rules.

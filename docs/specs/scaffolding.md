@@ -27,7 +27,7 @@ Authentication in F1 uses `AzureCliCredential`; sign in with `az login`. Telemet
 
 | Component | Version |
 |---|---|
-| .NET SDK / target | `10.0.202` / `net10.0` |
+| .NET SDK / target | `10.0.402` / `net10.0` |
 | DotNetEnv | `3.2.0` |
 | Spectre.Console | `0.57.2` |
 | Microsoft.Extensions.Configuration / EnvironmentVariables / DependencyInjection | `10.0.6` |

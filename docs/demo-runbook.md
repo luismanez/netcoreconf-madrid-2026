@@ -6,7 +6,9 @@ The demo uses a real Foundry model and an in-memory deployment system. CHG-1042,
 
 ## Prepare before the talk
 
-Use the SDK pinned in `global.json` (`10.0.202`), an Azure CLI identity with project/model access, and a model deployment supporting Responses and function calling. Docker is needed only for the standalone Aspire viewer. No cloud provisioning, AppHost, collector, or additional application project is required.
+Use the SDK pinned in `global.json` (`10.0.402`), an Azure CLI identity with project/model access, and a model deployment supporting Responses and function calling. Docker is needed only for the standalone Aspire viewer. No cloud provisioning, AppHost, collector, or additional application project is required.
+
+On an Apple Silicon Mac, use the [Microsoft .NET SDK 10.0.402 macOS Arm64 installer](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-10.0.402-macos-arm64-installer). It installs under `/usr/local/share/dotnet`. If a separate `~/.dotnet` installation exists, ensure the selected `dotnet` and `DOTNET_ROOT` refer to the same installation. After installation, open a new terminal and check `which dotnet`, `dotnet --list-sdks`, and `dotnet --version` from this repository; the selected SDK should be `10.0.402`. The target framework remains `net10.0`; SDK updates do not require matching NuGet package version changes.
 
 Run from the repository root:
 
