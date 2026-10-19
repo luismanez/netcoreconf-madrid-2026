@@ -1,0 +1,104 @@
+Use case: productivity-visual. Edit the provided reference into a revised version of the SAME "Human approval" slide. Preserve its exact minimalist Carbon-inspired visual style: 16:9 landscape, deep navy background, large white title at top-left, muted subtitle, one charcoal editor surface, subtle rounded border and shadow, small editor dots, crisp monospaced C# syntax highlighting. Replace ALL code and comments with the new content below. The previous image lacked context for Console.ReadLine; this revision must clearly show that the framework first returns a pending approval request, and ONLY THEN the application asks the human.
+
+Exact title: "Human approval"
+Exact subtitle: "From approval request to session resume"
+
+Layout: ONE unified editor surface, with a small upper snippet labeled "Program.cs" and a larger lower snippet labeled "DemoApplication.cs (abridged)". A discreet horizontal divider separates them. The lower snippet is the main focus. Use generous width so lines are readable; keep all content within the panel and retain bottom padding. Code should remain large, sharp and projector-readable. Cut decorative whitespace before reducing code font size. Comments in green, keywords purple/blue, types cyan, strings orange, method names pale yellow, variables and punctuation off-white. No line numbers, arrows, diagrams, icons, additional panels, footer, callouts or other text.
+
+Render the following exact upper snippet:
+// 1. Require approval before executing the tool.
+new ApprovalRequiredAIFunction(
+    AIFunctionFactory.Create(tools.DeployService))
+
+Render the following exact lower snippet:
+// 2. The framework returns a pending approval request.
+var response = await RunAgentAsync(
+    messages, session, activeTime, cancellationToken);
+var requests = ApprovalRequests(response);
+if (requests.Length == 1)
+{
+    var request = requests[0];
+    var target = DeploymentTarget(request)!;
+    // Target validation and error handling omitted.
+
+    // 3. Show the operation and ask the human.
+    Console.WriteLine($"Deploy {target.Service} v{target.Version}?");
+    Console.Write("Type APPROVE to confirm: ");
+    var approved = Console.ReadLine() == "APPROVE";
+    if (approved) store.RecordApproval(target);
+
+    // 4. Bind the decision to the request and resume.
+    var reply = new ChatMessage(ChatRole.User,
+        [request.CreateResponse(approved)]);
+    response = await RunAgentAsync(
+        [reply], session, activeTime, cancellationToken);
+}
+
+Technical accuracy: ApprovalRequests and DeploymentTarget are helper methods of this application, not framework APIs. This is an abridged illustration of the existing application. messages is the already constructed initial operator message. The real host validates the target and authorization before prompting; those checks and cancellation-aware console input are intentionally omitted here. The one-request branch makes the per-request CreateResponse binding clear, replacing the previous less readable LINQ expression. Do not add invented APIs. Preserve the SAME session variable on the first call and the resumption. Console.Write prints the prompt and Console.ReadLine receives the human's input; never imply the model types APPROVE. Render the uppercase string "APPROVE", interpolated string $"Deploy {target.Service} v{target.Version}?", requests[0], null-forgiving !, lambda-free collection [request.CreateResponse(approved)], and all punctuation exactly as specified.
+
+Key text must be spelled accurately: ApprovalRequiredAIFunction, AIFunctionFactory.Create, DeployService, RunAgentAsync, ApprovalRequests, DeploymentTarget, Console.WriteLine, Console.Write, Console.ReadLine, RecordApproval, ChatMessage, ChatRole.User, CreateResponse. The result must remain professional, minimal, and consistent with the other slides, while making the causal flow understandable.
+
+CORRECTION PASS
+Edit this slide with one focused correction: simplify how the host extracts the single approval request and fix the final closing brace. Keep the title, subtitle, background, editor panel, colors, labels and upper Program.cs snippet unchanged. Replace the entire lower DemoApplication.cs snippet with the EXACT text below. Keep the same readable monospaced font size, but use the two saved lines to ensure the entire final method call and the final closing brace fit comfortably INSIDE the panel with bottom padding. In particular the closing brace must be ON ITS OWN LAST LINE, AFTER the complete RunAgentAsync argument line and semicolon. Never place the closing brace before the argument line.
+
+EXACT LOWER SNIPPET:
+// 2. The framework returns a pending approval request.
+var response = await RunAgentAsync(
+    messages, session, activeTime, cancellationToken);
+var request = ApprovalRequests(response).SingleOrDefault();
+if (request is not null)
+{
+    var target = DeploymentTarget(request)!;
+    // Target validation and error handling omitted.
+
+    // 3. Show the operation and ask the human.
+    Console.WriteLine($"Deploy {target.Service} v{target.Version}?");
+    Console.Write("Type APPROVE to confirm: ");
+    var approved = Console.ReadLine() == "APPROVE";
+    if (approved) store.RecordApproval(target);
+
+    // 4. Bind the decision to the request and resume.
+    var reply = new ChatMessage(ChatRole.User,
+        [request.CreateResponse(approved)]);
+    response = await RunAgentAsync(
+        [reply], session, activeTime, cancellationToken);
+}
+
+This source excerpt intentionally assumes at most one approval request; the actual project validates the request count. All code must be spelled exactly with correct C# syntax, including is not null, SingleOrDefault(), v before {target.Version}, the null-forgiving !, all brackets and method calls. Use tight but readable line spacing as needed so no code overflows the panel. Preserve the 16:9 composition and all styling. Do not retain the old var requests, requests.Length or requests[0] lines.
+
+FINAL COMPOSITION PASS
+Create a NEW revised "Human approval" slide using the provided Function tools image ONLY as a visual style reference. This must be a fresh composition of the new text, not an edit that preserves previous text positions. Wide landscape 16:9, professional and minimal, deep navy background, white upper-left title, muted subtitle, one large charcoal editor panel with subtle rounded border, small editor dots and crisp C# syntax highlighting. Same series as the reference.
+
+Exact title: Human approval
+Exact subtitle: From approval request to session resume
+
+One panel, two stacked code excerpts. Upper small muted label: Program.cs. Lower small muted label: DemoApplication.cs (abridged). A thin divider between them. Make code large and readable. There is LESS CODE than the reference, so allow generous bottom padding. No extra diagrams, arrows, icons, footer, badges, line numbers or illustrations.
+
+Exact upper code:
+// 1. Require approval before executing the tool.
+new ApprovalRequiredAIFunction(
+    AIFunctionFactory.Create(tools.DeployService))
+
+Exact lower code:
+// 2. The framework returns a pending approval request.
+var response = await RunAgentAsync(messages, session, activeTime, cancellationToken);
+var request = ApprovalRequests(response).SingleOrDefault();
+if (request is not null)
+{
+    var target = DeploymentTarget(request)!;
+    // Target validation and error handling omitted.
+
+    // 3. Show the operation and ask the human.
+    Console.WriteLine($"Deploy {target.Service} v{target.Version}?");
+    Console.Write("Type APPROVE to confirm: ");
+    var approved = Console.ReadLine() == "APPROVE";
+    if (approved) store.RecordApproval(target);
+
+    // 4. Bind the decision to the request and resume.
+    var reply = new ChatMessage(ChatRole.User, [request.CreateResponse(approved)]);
+    response = await RunAgentAsync([reply], session, activeTime, cancellationToken);
+}
+
+CRITICAL CODE LAYOUT: Render both RunAgentAsync calls on SINGLE LINES exactly as shown. Render the new ChatMessage expression on a SINGLE LINE exactly as shown. The very last line is a standalone closing brace }, below all other code, aligned with the if statement and opening brace. There must be NO closing brace before the final RunAgentAsync call or before its arguments. Keep all code inside the panel with at least a full text line of bottom padding. The longest lines fit within the panel width; use the available width instead of wrapping the final call.
+
+Colors: comments readable green, keywords purple/blue, types cyan, strings orange, methods pale yellow, variables and punctuation off-white. Preserve exact spelling, punctuation, indentation and every code line. This is an abridged teaching excerpt of the existing console host, assuming one approval request. ApprovalRequests and DeploymentTarget are application helpers. The framework returns the pending request, the host prompts the HUMAN, and CreateResponse binds the decision before resuming the SAME session. The console input is intentionally simplified and validations are omitted as stated. Do not invent extra APIs, preserve exact uppercase APPROVE. Replace all Function tools text from the reference.

@@ -1,0 +1,33 @@
+Use case: productivity-visual. Edit the supplied reference slide into the next slide of the same professional .NET developer conference code walkthrough. The reference is a STYLE AND LAYOUT TEMPLATE ONLY. Replace all existing titles, labels, comments and code. Preserve the deep navy background, large white top-left title, smaller muted subtitle, ONE large charcoal editor surface, subtle rounded border, restrained shadow, small editor dots, crisp large monospaced font and C# Dark+ syntax highlighting. Wide landscape 16:9. Professional, minimalist, Carbon-inspired.
+
+Exact title: "Human approval"
+Exact subtitle: "Pause and resume"
+
+Inside the single editor surface, show two stacked source excerpts with small muted filename labels and a discreet horizontal divider. Upper label "Program.cs". Lower label "DemoApplication.cs (abridged)". The top excerpt defines a protected tool; the bottom shows how the console collects the decision and resumes the SAME session. Preserve all code exactly below. Keep large readable text, clean indentation, generous internal and bottom margins. No arrows, diagrams, people, icons, logos, badges, footer, callouts, extra cards, line numbers, or unrelated code.
+
+Exact upper excerpt:
+// Pause before the deployment tool executes.
+new ApprovalRequiredAIFunction(
+    AIFunctionFactory.Create(tools.DeployService))
+
+Exact lower excerpt:
+// Read the operator's explicit decision.
+var approved = Console.ReadLine() == "APPROVE";
+if (approved) store.RecordApproval(target);
+
+// Reply to the original approval request.
+var reply = new ChatMessage(ChatRole.User,
+    requests.Select(request =>
+        (AIContent)request.CreateResponse(approved)).ToList());
+
+// Resume with the same session and its existing context.
+response = await RunAgentAsync(
+    [reply], session, activeTime, cancellationToken);
+
+// Business authorization checks still run inside the tool.
+
+Syntax highlighting: comments readable muted green; new, var, if, await keywords blue/purple; ApprovalRequiredAIFunction, AIFunctionFactory, Console, ChatMessage, ChatRole, AIContent types cyan; method names pale yellow; "APPROVE" warm orange; variables and punctuation off-white. All text English. Spelling and punctuation must be precise. Important identifiers: ApprovalRequiredAIFunction, AIFunctionFactory.Create, DeployService, Console.ReadLine, RecordApproval, ChatMessage, ChatRole.User, AIContent, CreateResponse, RunAgentAsync, cancellationToken. Preserve the lambda =>, the cast (AIContent), comparison == and all parentheses, brackets, commas and semicolons.
+
+The host excerpt is deliberately abridged: it omits validation, asynchronous console cancellation handling, rejection state updates and tracing. Do not add those implementation details, or extra explanatory text outside the supplied comments. The existing target and requests variables come from the original approval request. Do not invent a standalone workflow API or plain-text "yes" message. Do not retain any Function tools, Description, ServiceHealth or other previous-slide content.
+
+Make this slide visually consistent with the reference and legible on a projector.

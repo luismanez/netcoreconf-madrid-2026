@@ -1,5 +1,8 @@
+using System.ClientModel;
 using System.Diagnostics;
 using System.Text.Json;
+using Azure;
+using Azure.Identity;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Spectre.Console;
@@ -42,7 +45,8 @@ internal sealed class DemoApplication(
                 var approved = false;
                 if (denial is not null)
                 {
-                    store.Stop(DemoOutcome.ValidationFailed, denial);
+                    store.Stop(DemoOutcome.ValidationFailed, denial,
+                        target is null ? "invalid_approval_request" : "deployment_denied");
                     console.Write(new Text(denial, new Style(Color.Red)));
                     console.WriteLine();
                 }
@@ -65,7 +69,7 @@ internal sealed class DemoApplication(
                     }
                     else
                     {
-                        store.Stop(DemoOutcome.Rejected, "The operator did not approve deployment.");
+                        store.Stop(DemoOutcome.Rejected, "The operator did not approve deployment.", "operator_rejected");
                     }
                 }
 
@@ -77,18 +81,20 @@ internal sealed class DemoApplication(
                 await ShowProgressAsync(session, cancellationToken);
                 if (ApprovalRequests(response).Length > 0)
                 {
-                    store.Stop(DemoOutcome.ValidationFailed, "Only one deployment approval round is allowed.");
+                    store.Stop(DemoOutcome.ValidationFailed, "Only one deployment approval round is allowed.",
+                        "repeated_approval_request");
                 }
             }
         }
         catch (OperationCanceledException)
         {
             store.Stop(DemoOutcome.Cancelled, cancellationToken.IsCancellationRequested
-                ? "The operator cancelled the run." : "The 120-second active execution budget expired.");
+                ? "The operator cancelled the run." : "The 120-second active execution budget expired.",
+                cancellationToken.IsCancellationRequested ? "operator_cancelled" : "active_budget_expired");
         }
-        catch (Exception)
+        catch (Exception error)
         {
-            store.Stop(DemoOutcome.Error, "Agent execution failed. Check Azure CLI sign-in, Foundry access, and model compatibility.");
+            store.Stop(DemoOutcome.Error, DescribeFailure(error), "agent_execution_failed");
         }
         finally
         {
@@ -97,6 +103,7 @@ internal sealed class DemoApplication(
         }
 
         run.SetTag("demo.outcome", store.Outcome.ToString());
+        run.SetTag("demo.stop_reason", store.StopReasonCode);
         run.SetTag("demo.active_ms", activeTime.ElapsedMilliseconds);
         run.SetTag("deployment.id", store.Deployment?.DeploymentId);
         run.SetTag("deployment.status", store.Deployment?.Status);
@@ -146,7 +153,8 @@ internal sealed class DemoApplication(
                 store.Stop(store.CurrentIteration >= 4 ? DemoOutcome.ExecutionLimitReached : DemoOutcome.Error,
                     store.CurrentIteration >= 4
                         ? "The harness reached its four-invocation limit with evidence still pending."
-                        : "The agent returned before operational verification was complete.");
+                        : "The agent returned before operational verification was complete.",
+                    store.CurrentIteration >= 4 ? "iteration_limit_reached" : "verification_incomplete");
             }
             return response;
         }
@@ -241,6 +249,36 @@ internal sealed class DemoApplication(
 
     private static ToolApprovalRequestContent[] ApprovalRequests(AgentResponse response) =>
         response.Messages.SelectMany(message => message.Contents).OfType<ToolApprovalRequestContent>().ToArray();
+
+    private static string DescribeFailure(Exception error)
+    {
+        // Keep HTTP diagnostics useful without printing raw exception messages, headers, or response bodies.
+        var cause = error;
+        while (cause.InnerException is { } inner && cause is not ClientResultException and not RequestFailedException)
+        {
+            cause = inner;
+        }
+        var status = cause switch
+        {
+            ClientResultException client => client.Status,
+            RequestFailedException azure => azure.Status,
+            _ => 0
+        };
+        var http = status > 0 ? $", HTTP {status}" : "";
+        var hint = status switch
+        {
+            400 => "The service rejected the request; check deployment/API capabilities and request parameters.",
+            401 => "The service rejected authentication; check Azure CLI identity and token access.",
+            403 => "Authentication alone is insufficient; check inference permissions on the project/resource.",
+            404 => "Check the project endpoint and the exact model deployment name in FOUNDRY_MODEL.",
+            429 => "The service is rate-limited; check model quota and capacity.",
+            >= 500 => "The remote service failed; inspect its status before changing the model or credentials.",
+            > 0 => "The service returned an unexpected HTTP response; inspect request/API configuration.",
+            _ when cause is AuthenticationFailedException => "Azure CLI token acquisition failed. Check az resolution from /bin/sh, PATH, and the CLI sign-in session.",
+            _ => "Inspect the caught exception in the debugger for details; no HTTP failure was identified."
+        };
+        return $"Agent execution failed ({cause.GetType().Name}{http}). {hint}";
+    }
 
     private static RequestedChange? DeploymentTarget(ToolApprovalRequestContent request)
     {

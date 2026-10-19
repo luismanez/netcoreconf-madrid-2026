@@ -1,0 +1,33 @@
+Use case: productivity-visual.
+Create one finished raster slide image for a professional .NET developer conference presentation. Wide landscape aspect ratio exactly 16:9, preferably 3840 x 2160. This is slide 1 of a code walkthrough, titled "Harness composition". The existing deck uses English titles and code, deep navy backgrounds, and restrained cyan/purple accents.
+
+Design: extremely clean, professional, minimalist, inspired by Carbon source-code screenshots and the VS Code Dark+ editor theme. Flat deep navy background (#0B1020), generous margins. A small, elegant white title "Harness composition" at the upper left, with a much smaller muted subtitle "Microsoft Agent Framework". Under the title, one large charcoal code surface (#181D27), subtle rounded corners, hairline border, very restrained soft shadow. The code surface occupies most of the image width and height. No multiple cards, diagrams, illustrations, people, logos, icons, arrows, gradients, badges, decorative labels, footer, line numbers, or browser chrome. Tiny subdued editor window dots at top-left of the code surface are acceptable, but do not take space away from code.
+
+Critical typography: beautifully sharp, highly readable code in a real monospaced coding font such as JetBrains Mono or Cascadia Code. All code is flat, perfectly straight, front-facing, aligned and indented. Large enough to read on a conference projector. Use C# syntax highlighting: keywords blue or purple, types teal, strings warm orange, method names pale yellow, punctuation/off-white, comments muted green but still clearly readable. The comments below are the only explanatory annotations; do not add any external explanatory prose.
+
+Render the following code EXACTLY as written, including every comment, method name, parenthesis, comma, square bracket and semicolon. Do not rewrite, duplicate or omit code lines. The snippet is deliberately shortened from the real project. Preserve the one long AsHarnessAgent declaration on a single line if possible. Code and comments are English. Balance the title and code so the code is dominant.
+
+EXACT CODE:
+// Compose the runtime around the model client.
+var agent = chatClient.AsHarnessAgent(new HarnessAgentOptions
+{
+    Name = "ProductionChangeAssistant",
+    ChatOptions = new ChatOptions
+    {
+        // Expose C# methods as callable tools.
+        Tools =
+        [
+            AIFunctionFactory.Create(tools.GetChangeRequest),
+            AIFunctionFactory.Create(tools.GetServiceHealth),
+
+            // Require human approval before deployment.
+            new ApprovalRequiredAIFunction(
+                AIFunctionFactory.Create(tools.DeployService)),
+
+            AIFunctionFactory.Create(tools.GetDeploymentStatus)
+        ]
+    }
+    // Skills, instructions, loop and tracing options omitted.
+});
+
+Final constraints: image is a polished slide-ready composition, not a photograph of a monitor. Text accuracy and legibility matter more than decoration. Keep the exact C# spelling "AsHarnessAgent", "HarnessAgentOptions", "ChatOptions", "AIFunctionFactory", "ApprovalRequiredAIFunction", "GetChangeRequest", "GetServiceHealth", "DeployService", "GetDeploymentStatus".

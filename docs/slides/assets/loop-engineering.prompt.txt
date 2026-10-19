@@ -1,0 +1,37 @@
+Use case: productivity-visual. Create slide 6 of this professional .NET conference code walkthrough using the provided reference image ONLY as a STYLE TEMPLATE. Replace all Function tools text and all snippets. Preserve the same wide 16:9 landscape composition, deep navy background, large white title at upper left, smaller muted subtitle, ONE large charcoal editor panel, subtle rounded border and shadow, small editor dots, crisp projector-readable monospaced font and restrained C# syntax highlighting. Minimal, professional Carbon/VS Code Dark+ aesthetic.
+
+Exact title: "Loop Engineering"
+Exact subtitle: "Continuation, feedback and execution limits"
+
+Within the ONE editor panel use a small muted source label "Program.cs (abridged)" followed by ONE continuous C# configuration excerpt. Separate the two options with a blank line, not separate cards or columns. Keep comments large and readable, and leave generous bottom padding. No diagrams, arrows, icons, logos, badges, footer, line numbers, callouts or extra text. The code is the dominant content.
+
+Render this EXACT code, in this order, preserving comments, identifiers, punctuation, lambda and all brackets:
+// Decide whether the agent needs another iteration.
+LoopEvaluators = [new DelegateLoopEvaluator((context, cancellationToken) =>
+{
+    // null stops the loop; text guides the next iteration.
+    var feedback = store.ContinuationFeedback();
+    if (feedback is null)
+        return ValueTask.FromResult(LoopEvaluation.Stop());
+
+    store.BeginIteration(context.Iteration + 1);
+    return ValueTask.FromResult(LoopEvaluation.Continue(feedback));
+})],
+
+// Bound each run while preserving the conversation.
+LoopAgentOptions = new LoopAgentOptions
+{
+    MaxIterations = 4,
+    FreshContextPerIteration = false
+}
+
+// One iteration can include multiple model and tool calls.
+// Resuming after approval starts a new loop run.
+
+Critical rendering: the closing sequence })], belongs AFTER the complete Continue(feedback) return statement. The final closing brace of LoopAgentOptions must be AFTER FreshContextPerIteration = false on its own line. Do not put braces before method arguments or reorder lines. Keep the declaration of DelegateLoopEvaluator on one line if possible, using the panel width. The two return statements should each fit on a single line. Avoid tiny text.
+
+Syntax coloring: comments legible green; new, var, if, is, null, return, false keywords purple or blue; DelegateLoopEvaluator, LoopEvaluation, ValueTask and LoopAgentOptions types cyan; method names pale yellow; numeric literal 4 pale green or cyan; property names, variables and punctuation off-white. Text is all English.
+
+Meaning must remain accurate: store.ContinuationFeedback is an application helper that checks operational state and produces feedback or null; DelegateLoopEvaluator is the framework integration. The framework decides continuation with Stop/Continue and enforces MaxIterations. MaxIterations = 4 is PER LOOP RUN including its first iteration, not per conversation or a limit of four total model calls. FreshContextPerIteration = false retains session conversation history. The real excerpt also includes cancellation, tracing and another loop option, intentionally omitted here for readability. Do not add invented APIs, a hand-written while loop, AI judge, completed todo predicate, or a claim that stopped execution means deployment success.
+
+Use the exact identifiers LoopEvaluators, DelegateLoopEvaluator, ContinuationFeedback, LoopEvaluation.Stop, BeginIteration, context.Iteration, LoopEvaluation.Continue, LoopAgentOptions, MaxIterations and FreshContextPerIteration. This is a teaching slide, with the supplied comments explaining the code concisely.

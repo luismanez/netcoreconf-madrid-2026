@@ -1,0 +1,47 @@
+Use case: productivity-visual. Create the NEXT slide, slide 7, in this professional .NET conference code walkthrough by using the supplied image ONLY as a visual style reference. Replace every Function tools title, subtitle, label, code line and comment. Preserve the same wide landscape 16:9 format, deep navy background, large white title at upper left, muted subtitle, ONE large charcoal editor surface, restrained rounded border and shadow, small editor dots, crisp large monospaced text and VS Code Dark+ C# syntax highlighting. Professional and minimalist, inspired by Carbon.
+
+Exact title: "Graph Engineering"
+Exact subtitle: "Guarded transitions and verified outcomes"
+
+Inside the ONE unified editor panel show two vertically stacked excerpts from the same source file. Use small muted source labels:
+Upper: "DemoDeploymentStore.cs / StartDeployment (abridged)"
+Lower: "DemoDeploymentStore.cs / ReadHealth (abridged)"
+Use a subtle horizontal divider. Keep code large and readable, use the available width, and leave comfortable bottom padding. No actual graph illustration, no arrows, icons, cards, badges, logos, footer, line numbers or other decorative elements. This slide intentionally shows deterministic application code implementing states and guarded transitions, not WorkflowBuilder.
+
+Exact upper code:
+// Check the target, window, health and operator permission.
+var denial = DeploymentDenial(target);
+if (denial is not null || ApprovedTarget != target)
+{
+    Stop(DemoOutcome.ValidationFailed,
+        denial ?? "Explicit human approval is required.");
+    return null;
+}
+// Repeated calls reuse the existing deployment.
+return Deployment ??= new Deployment("DEP-742", target, "Running");
+
+Exact lower code:
+// After Succeeded, verify service health and the requested version.
+PostDeploymentHealth = Health with { Phase = "AfterDeployment" };
+var verified =
+    PostDeploymentHealth.Status == "Healthy"
+    && PostDeploymentHealth.Version == Requested.Version;
+
+Stop(verified ? DemoOutcome.Completed : DemoOutcome.PostHealthFailed,
+    verified
+        ? "Deployment and subsequent health/version are verified."
+        : "Post-deployment health or version does not match the expected result.");
+
+// States and guards live in application code.
+
+Critical syntax: preserve the null-coalescing assignment ??=, comparison !=, boolean || and &&, null-coalescing ??, ternary ? : and record-with expression exactly. The upper if block must close on its own line AFTER return null; and BEFORE the last return Deployment line. The lower Stop call must include all its arguments and closing ); without extra braces. Use complete lines with correct indentation and never place closing punctuation before arguments.
+
+Colors: comments readable muted green, C# keywords var, if, is, not, null, return, new and with blue or purple; types DemoOutcome and Deployment cyan; method names pale yellow; string literals warm orange; properties and punctuation off-white. All text is English and must be spelled exactly, especially DeploymentDenial, ApprovedTarget, ValidationFailed, DEP-742, PostDeploymentHealth, Requested.Version, Completed and PostHealthFailed.
+
+Accuracy constraints: DeploymentDenial is an application helper that checks the target, change approval, maintenance window, prior health and operator permissions. ApprovedTarget additionally enforces explicit human approval for that exact target. Deployment ??= makes identical deployment calls idempotent. The lower excerpt runs only after the deployment reports Succeeded; success then requires Healthy AND the requested version. Failure ends as PostHealthFailed without rollback. Do not invent workflow APIs, rollback logic, a second deployment or an LLM success judge. The comments above explain the snippets; do not add further prose outside the two exact source labels, title and subtitle.
+
+TEXT CORRECTION PASS
+Edit only ONE text detail in this slide. In the upper StartDeployment snippet, replace the final return line with this EXACT C# line:
+return Deployment ??= new Deployment("DEP-742", target, "Running");
+
+The state string MUST read "Running" with all seven letters R-u-n-n-i-n-g, including the final lowercase g. Keep the double question mark and equals sign ??= exactly. Preserve everything else unchanged: title, subtitle, layout, all lower ReadHealth code, comments, fonts, colors, background, editor panel and source labels. Do not introduce any other changes or regenerate different content.

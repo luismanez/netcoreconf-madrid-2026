@@ -287,7 +287,9 @@ demo.run
 
 Use the standalone Aspire dashboard, without an AppHost or additional collector. Prepare its image locally and keep it pinned after rehearsal; do not download or update it live. [Standalone dashboard](https://aspire.dev/dashboard/standalone/).
 
-Allowed data: tool names, duration, iteration, observation counter, statuses, approval decision, outcome, and TraceId. Business IDs are allowed only because they are fictional. Keep `EnableSensitiveData` disabled; do not capture prompts, responses, arguments, complete results, or raw exceptions. `SafeErrorProcessor` clears native error status descriptions before export; detailed function errors are disabled. OTLP request/processor timeouts are 1000 ms, followed by 2000 ms flush and shutdown attempts after root closure. Export cleanup does not change the operational outcome. Do not export conversation logs or HTTP bodies. Any eventual content capture would be an explicit development option, outside the main walkthrough.
+Default data: tool names, duration, iteration, observation counter, statuses, approval decision, outcome, TraceId, and a fixed `demo.stop_reason` code. Business IDs are allowed only because they are fictional. Keep `EnableSensitiveData` disabled by default. As requested on 18 October 2026, `DEMO_CAPTURE_CONTENT=true` explicitly enables native agent/client content capture for the fictional conference walkthrough: messages, responses, tool arguments, and results. Empty or missing means false; invalid values fail configuration. Content capture may also expose detailed native error telemetry. Do not add conversation log exporters or HTTP body logging. `SafeErrorProcessor` clears native error status descriptions before export; detailed function errors and sanitized console diagnostics remain unchanged. OTLP request/processor timeouts are 1000 ms, followed by 2000 ms flush and shutdown attempts after root closure. Export cleanup does not change the operational outcome.
+
+Record `demo.stop_reason` on the root and on tool/evaluator activities when available, independently of content capture. Use controlled application codes such as `maintenance_window_closed`, `deployment_failed`, and `deployment_verified`; never derive the code from model text or exception messages. Preserve the first terminal outcome and reason. See the [runbook](../demo-runbook.md) for expected scenario codes and presenter-owned verification.
 
 ## 8. Commands
 
@@ -334,7 +336,7 @@ Do not create or run automated tests for this conference demo. The agent compile
 | Repeated queries and duplicate deployment | Cached snapshot does not advance; a single DEP-742. |
 | Model declares all todos complete or premature success | Store prevents Completed without evidence. |
 | Tool output with adversarial instructions | No changes to permissions, limits, or approval; no new capability. |
-| Telemetry | Correlated trace, visible approval, and no sensitive content capture enabled. |
+| Telemetry | Correlated trace, visible approval, fixed stop-reason codes, and content capture disabled by default with an explicit fictional-demo opt-in. |
 
 Live-model rehearsal: complete the happy path five consecutive times, measure duration, and check the dashboard; run rejection and `stuck` at least once. Target: happy path in under 90 seconds of active work, excluding code walkthrough and operator waiting. If the model exhausts its internal budget or makes no progress, finish as incomplete; never silently raise limits to demonstrate success.
 

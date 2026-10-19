@@ -15,6 +15,7 @@ internal sealed class DeploymentTools(DemoDeploymentStore store, ActivitySource 
         var change = store.ReadChange(changeId);
         activity?.SetTag("change.found", change is not null);
         activity?.SetTag("demo.outcome", store.Outcome.ToString());
+        activity?.SetTag("demo.stop_reason", store.StopReasonCode);
         ToolCompleted?.Invoke(nameof(GetChangeRequest), change);
         return change;
     }
@@ -28,6 +29,7 @@ internal sealed class DeploymentTools(DemoDeploymentStore store, ActivitySource 
         activity?.SetTag("health.status", health?.Status ?? "Unknown");
         activity?.SetTag("health.phase", health?.Phase);
         activity?.SetTag("health.version", health?.Version);
+        activity?.SetTag("demo.stop_reason", store.StopReasonCode);
         ToolCompleted?.Invoke(nameof(GetServiceHealth), health);
         return health;
     }
@@ -42,6 +44,7 @@ internal sealed class DeploymentTools(DemoDeploymentStore store, ActivitySource 
         var deployment = store.StartDeployment(new(changeId, service, version, environment));
         activity?.SetTag("deployment.id", deployment?.DeploymentId);
         activity?.SetTag("deployment.status", deployment?.Status ?? "Denied");
+        activity?.SetTag("demo.stop_reason", store.StopReasonCode);
         ToolCompleted?.Invoke(nameof(DeployService), deployment);
         return deployment;
     }
@@ -57,6 +60,7 @@ internal sealed class DeploymentTools(DemoDeploymentStore store, ActivitySource 
         activity?.SetTag("loop.iteration", store.CurrentIteration);
         activity?.SetTag("loop.run", store.LoopRunNumber);
         activity?.SetTag("deployment.cached", snapshot?.IsCached);
+        activity?.SetTag("demo.stop_reason", store.StopReasonCode);
         ToolCompleted?.Invoke(nameof(GetDeploymentStatus), snapshot);
         return snapshot;
     }

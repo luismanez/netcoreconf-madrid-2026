@@ -10,7 +10,7 @@
 
 ## Feature outcome
 
-The audience can follow a complete run in the console and open a correlated trace in Aspire Dashboard: reads, approval question, deployment, iterations, and outcome. Output distinguishes harness facts, agent messages, and declared progress. Operational telemetry is sufficient without capturing conversations or payloads.
+The audience can follow a complete run in the console and open a correlated trace in Aspire Dashboard: reads, approval question, deployment, iterations, and outcome. Output distinguishes harness facts, agent messages, and declared progress. Operational telemetry remains usable without conversations or payloads; an explicit content-capture flag supports the fictional conference walkthrough.
 
 Operation instrumentation comes from F1/F2. This feature connects its export and makes the complete session visible; it adds no new business logic.
 
@@ -19,12 +19,13 @@ Operation instrumentation comes from F1/F2. This feature connects its export and
 - Configure the `TracerProvider`, demo resource, and OTLP in `Program.cs`, using source `WftEngineering.Demo` and a configurable local endpoint.
 - Use instrumentation included in HarnessAgent and dedicated activities; avoid wrapping the same client in OpenTelemetry again.
 - Ensure a `demo.run` root covers the human round trip, invocations, and outcome; include approval duration/decision and continuation events.
+- Include fixed stop-reason codes independently of content capture. Allow native agent/client content capture through `DEMO_CAPTURE_CONTENT`, disabled by default (extension requested on 18 October 2026).
 - Refine the existing Spectre.Console presentation and streaming for the Skill, verified data, tasks, approval arguments, iteration/observation, outcome, and TraceId; keep `IAnsiConsole` injected.
 - Read todos through the session provider without inspecting internal reasoning or reconstructing progress from agent phrases.
 - Check privacy, sanitized operational errors, final flush, and disposal on rejection/cancellation too.
 - Make the spec's local dashboard command usable, without an AppHost or additional collector.
 
-Out of scope: new tools, new policies, changed limits, full metrics/logs, optional prompt capture, a TUI, other exporters, or preparation of final conference material.
+Out of scope: new tools, new policies, changed limits, full metrics/logs, a TUI, other exporters, or preparation of final conference material.
 
 ## Output and telemetry contracts
 
@@ -40,7 +41,7 @@ Out of scope: new tools, new policies, changed limits, full metrics/logs, option
 
 Always present final output from external state, even when model text announces false success. If todos are stale, show them as declared progress and preserve the operational outcome; do not create a second planner to reconcile them.
 
-Allow tool names, durations, approval decision, statuses, counters, outcome, and fictional IDs. Keep `EnableSensitiveData` disabled in both client and agent layers; do not record prompts, responses, full arguments/results, HTTP bodies, secrets, or raw exceptions. Do not enable Debug indiscriminately for a more impressive trace.
+Allow tool names, durations, approval decision, statuses, counters, outcome, fixed stop-reason codes, and fictional IDs by default. `DEMO_CAPTURE_CONTENT=true` explicitly enables `EnableSensitiveData` in both native client and agent layers for the fictional demo. Empty or missing defaults to false; reject invalid booleans. Native content can include messages, tool payloads, and detailed error telemetry; the status-description processor is not a general redactor. Do not add HTTP body logging or include secrets. Keep console errors sanitized and detailed function errors disabled.
 
 Do not promise automatic span names or an exact tree. Check correlation, coverage, and operation evidence; add a dedicated activity only for a missing operational fact.
 
@@ -54,7 +55,7 @@ Do not promise automatic span names or an exact tree. Check correlation, coverag
 
 1. A run generates a correlated trace covering prior operations, approval waiting, deployment, iterations, and closure; the exporter can send it to the local dashboard.
 2. The console is readable and consistent with the store in happy, reject, and stuck, with correct tasks and counters; the seven teaching elements remain visible in code.
-3. Source review and available manual trace inspection confirm sensitive capture is disabled and client instrumentation is not duplicated; F1/F2 guards and limits remain intact.
+3. Source review confirms content capture is disabled by default, follows the explicit flag, and does not duplicate client instrumentation; fixed stop reasons do not depend on that flag. F1/F2 guards and limits remain intact. Presenter-owned trace inspection checks both capture modes.
 
 ## Planned manual viewer check
 
@@ -80,6 +81,6 @@ With the image available and Foundry configured, run `happy`, accept manually, a
 Apply using-agent-skills and implement feature 03-observable-demo-session.
 Read docs/specs/production-change-demo.md, docs/specs/features/README.md, and plan.md/todo.md in docs/specs/features/03-observable-demo-session/; check that features 01 and 02 are implemented and verified.
 Complete the three tasks: connect OTel/OTLP to existing instrumentation, prepare readable console/streaming output, and manually inspect privacy and correlation. Preserve guards, external state, and limits.
-Do not capture prompts, responses, or payloads, duplicate client instrumentation, or add a TUI/AppHost/collector. Use local standalone Aspire if the environment is available.
+Keep native content capture opt-in through DEMO_CAPTURE_CONTENT for fictional demo data; emit fixed demo.stop_reason codes independently. Do not duplicate client instrumentation or add a TUI/AppHost/collector. Leave live Foundry/Aspire verification to the presenter.
 Update todo.md with evidence and actual pending viewer checks. Do not implement new scenarios or the conference script; no sub-agents, new layers, provisioning, or automatic commits. Do not add automated tests, a testing project, scripted model clients, or testing dependencies. Write documentation in English.
 ```
